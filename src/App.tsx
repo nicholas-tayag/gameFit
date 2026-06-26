@@ -5,9 +5,12 @@ import {
   ArrowRightIcon,
   BrainIcon,
   ExternalLinkIcon,
+  Gamepad2Icon,
   GaugeIcon,
   Layers3Icon,
+  MessageCircleIcon,
   RotateCcwIcon,
+  SparklesIcon,
   SwordsIcon,
   TargetIcon,
   TrophyIcon,
@@ -23,6 +26,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import {
   Select,
@@ -37,10 +47,11 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { gameCatalog } from './data/catalog'
 import { quizQuestions } from './data/quiz'
 import { buildProfile, describeDislikedGame, recommendGames } from './lib/recommendations'
+import { buildTasteSeedInsight } from './lib/tasteSeed'
 import type { Axis, AxisScores } from './types'
 import './App.css'
 
-type AppStage = 'landing' | 'quiz' | 'results'
+type AppStage = 'landing' | 'taste-seed' | 'quiz' | 'results'
 
 const storageKey = 'gamefit:v2'
 
@@ -48,6 +59,7 @@ interface SavedState {
   answers: Record<string, string>
   currentIndex: number
   dislikedGameId: string
+  topGames: string[]
   stage: AppStage
 }
 
@@ -75,6 +87,7 @@ const initialState: SavedState = {
   answers: {},
   currentIndex: 0,
   dislikedGameId: 'elden-ring',
+  topGames: ['', '', ''],
   stage: 'landing',
 }
 
@@ -116,26 +129,36 @@ function App() {
   const [answers, setAnswers] = useState<Record<string, string>>(savedState.answers)
   const [currentIndex, setCurrentIndex] = useState(savedState.currentIndex)
   const [dislikedGameId, setDislikedGameId] = useState(savedState.dislikedGameId)
+  const [topGames, setTopGames] = useState<string[]>(savedState.topGames.length === 3 ? savedState.topGames : ['', '', ''])
 
   const currentQuestion = quizQuestions[currentIndex]
   const answeredCount = Object.keys(answers).length
   const progress = Math.round((answeredCount / quizQuestions.length) * 100)
   const profile = useMemo(() => buildProfile(answers), [answers])
+  const tasteSeedInsight = useMemo(() => buildTasteSeedInsight(topGames), [topGames])
   const recommendations = useMemo(() => recommendGames(profile, dislikedGameId, 8), [dislikedGameId, profile])
   const dislikedReflection = describeDislikedGame(profile, dislikedGameId)
   const selectedAnswer = answers[currentQuestion.id]
   useEffect(() => {
-    const state: SavedState = { answers, currentIndex, dislikedGameId, stage }
+    const state: SavedState = { answers, currentIndex, dislikedGameId, topGames, stage }
     window.localStorage.setItem(storageKey, JSON.stringify(state))
-  }, [answers, currentIndex, dislikedGameId, stage])
+  }, [answers, currentIndex, dislikedGameId, stage, topGames])
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
   }, [currentIndex, stage])
 
-  const startQuiz = () => {
+  const startTasteSeed = () => {
+    setStage('taste-seed')
+  }
+
+  const beginQuiz = () => {
     setStage('quiz')
     setCurrentIndex(0)
+  }
+
+  const updateTopGame = (index: number, value: string) => {
+    setTopGames((games) => games.map((game, gameIndex) => (gameIndex === index ? value : game)))
   }
 
   const chooseAnswer = (optionId: string) => {
@@ -152,7 +175,7 @@ function App() {
 
   const goPrevious = () => {
     if (currentIndex === 0) {
-      setStage('landing')
+      setStage('taste-seed')
       return
     }
     setCurrentIndex((index) => Math.max(0, index - 1))
@@ -162,7 +185,94 @@ function App() {
     setAnswers({})
     setCurrentIndex(0)
     setDislikedGameId('elden-ring')
+    setTopGames(['', '', ''])
     setStage('landing')
+  }
+
+  if (stage === 'taste-seed') {
+    return (
+      <motion.main className="taste-stage" {...pageMotion}>
+        <section className="taste-shell" aria-label="Pre-quiz game taste seed">
+          <div className="taste-copy">
+            <div className="taste-heading">
+              <h1>Start with the games that already clicked.</h1>
+              <p>
+                Enter up to three favorites before the quiz. The guide will make a quick first read, then
+                the scenario questions will tune your actual Micro, Meso, and Macro profile.
+              </p>
+            </div>
+
+            <Card className="taste-input-card">
+              <CardHeader>
+                <CardTitle>Your top 3 games</CardTitle>
+                <CardDescription>
+                  Use games you loved, replayed, or could not stop thinking about.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FieldGroup>
+                  {topGames.map((game, index) => (
+                    <Field key={index}>
+                      <FieldLabel htmlFor={`top-game-${index}`}>Game {index + 1}</FieldLabel>
+                      <Input
+                        id={`top-game-${index}`}
+                        value={game}
+                        onChange={(event) => updateTopGame(index, event.target.value)}
+                        placeholder={['Hades', "Baldur's Gate 3", 'Rocket League'][index]}
+                      />
+                    </Field>
+                  ))}
+                  <FieldDescription>
+                    The MVP recognizes the starter catalog first. Unknown titles still help point out what the catalog should learn next.
+                  </FieldDescription>
+                </FieldGroup>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" size="lg" type="button" onClick={beginQuiz}>
+                  Skip for now
+                </Button>
+                <Button className="hero-primary-cta" size="lg" type="button" onClick={beginQuiz}>
+                  Begin tuning
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          <div className="guide-panel" aria-live="polite">
+            <div className="guide-orb" aria-hidden="true">
+              <SparklesIcon />
+            </div>
+            <Card className="guide-card">
+              <CardHeader>
+                <div className="guide-card-title">
+                  <MessageCircleIcon />
+                  <span>GameFit guide</span>
+                </div>
+                <CardTitle>{tasteSeedInsight.summary}</CardTitle>
+                <CardDescription>{tasteSeedInsight.detail}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ProfileDiagram scores={tasteSeedInsight.scores} />
+                <AxisBars scores={tasteSeedInsight.scores} compact />
+                <div className="taste-chip-row">
+                  {tasteSeedInsight.matchedGames.length > 0 ? (
+                    tasteSeedInsight.matchedGames.map((game) => (
+                      <Badge variant="secondary" key={game.id}>
+                        <Gamepad2Icon data-icon="inline-start" />
+                        {game.title}
+                      </Badge>
+                    ))
+                  ) : (
+                    <Badge variant="outline">Waiting for recognized games</Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </motion.main>
+    )
   }
 
   if (stage === 'quiz') {
@@ -358,7 +468,7 @@ function App() {
             recommends games with clear reasons instead of vague genre labels.
           </p>
           <div className="hero-actions">
-            <Button className="hero-primary-cta" size="lg" onClick={startQuiz}>
+            <Button className="hero-primary-cta" size="lg" onClick={startTasteSeed}>
               Start the GameFit quiz
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
@@ -430,7 +540,7 @@ function App() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="hero-primary-cta" size="lg" onClick={startQuiz}>
+            <Button className="hero-primary-cta" size="lg" onClick={startTasteSeed}>
               Enter quiz page
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
@@ -502,9 +612,9 @@ function ProfileDiagram({ scores }: { scores: AxisScores }) {
   )
 }
 
-function AxisBars({ scores }: { scores: AxisScores }) {
+function AxisBars({ scores, compact = false }: { scores: AxisScores; compact?: boolean }) {
   return (
-    <div className="axis-list">
+    <div className={compact ? 'axis-list compact' : 'axis-list'}>
       {axes.map((axis) => (
         <div className="axis-row" key={axis}>
           <div>

@@ -8,7 +8,7 @@ The core product idea is a short diagnostic that maps a player's preferences acr
 - **Meso**: situational reads, adaptation, tactics, pattern recognition, and moment-to-moment judgment.
 - **Macro**: planning, systems, builds, routes, progression, economy, and long-horizon strategy.
 
-The v1 experience starts with a public-facing landing page that explains the idea, defines Micro/Meso/Macro in simple gameplay terms, cites the source inspiration video, and pushes users into a full-screen archetype-style quiz. The quiz completes into a profile/results page with a radar-style lean diagram, bounce-off reflection, and local-catalog recommendations.
+The v1 experience starts with a public-facing landing page that explains the idea, defines Micro/Meso/Macro in simple gameplay terms, cites the source inspiration video, and pushes users into a pre-quiz taste seed. Players can enter up to three games they already love, get a quick local-catalog read from the GameFit guide, then continue into a full-screen archetype-style quiz. The quiz completes into a profile/results page with a radar-style lean diagram, bounce-off reflection, and local-catalog recommendations.
 
 Source inspiration: Surnex's YouTube video [“Once you see this, You'll see Competitive Games Differently”](https://www.youtube.com/watch?v=NgHvdCcmQ4o). I want to credit the creator for making such an interesting video that it pushed me to turn the idea into a real project.
 
@@ -28,8 +28,9 @@ Source inspiration: Surnex's YouTube video [“Once you see this, You'll see Com
 ## Product Flow
 
 1. **Landing page**: explains GameFit, Micro/Meso/Macro, and credits Surnex's YouTube source.
-2. **Quiz page**: full-screen scenario questions with shadcn `ToggleGroup` answer controls.
-3. **Completion page**: shows current lean, radar diagram, axis bars, disliked-game reflection, and recommended games.
+2. **Taste seed page**: asks for up to three favorite games and gives a quick Micro/Meso/Macro hint from recognized catalog matches.
+3. **Quiz page**: full-screen scenario questions with shadcn `ToggleGroup` answer controls.
+4. **Completion page**: shows current lean, radar diagram, axis bars, disliked-game reflection, and recommended games.
 
 ## Local Setup
 
@@ -109,6 +110,7 @@ Until accounts, analytics, or a backend are added, the product should not claim 
 
 - Make the landing page understandable without prior context.
 - Help users start the quiz quickly with a visible primary action.
+- Use top-three favorite games as a lightweight onboarding signal before the scenario quiz.
 - Explain recommendations through fit and friction, not vague genre matching.
 - Keep the current MVP deployable as a static app.
 - Treat user profiles, saved results, and usage stats as future roadmap work, not hidden v1 behavior.
@@ -116,6 +118,8 @@ Until accounts, analytics, or a backend are added, the product should not claim 
 ## Future User Profiles And Stats
 
 Future versions should consider optional accounts or local-first profiles so users can save results, retake the quiz, track how their taste changes, and mark games as tried, loved, skipped, or bounced off. Usage stats should start privacy-friendly and answer product questions like quiz starts, quiz completions, result views, recommendation clicks, and whether users found the profile accurate.
+
+The top-three-games step should eventually feed a larger catalog and feedback loop: unknown titles can become demand signals for what games to add next, while recognized favorites can help compare inferred quiz profiles against actual taste.
 
 ## MVP Acquisition Notes
 
