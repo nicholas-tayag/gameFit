@@ -6,7 +6,7 @@ const axes: Axis[] = ['micro', 'meso', 'macro']
 const axisNouns: Record<Axis, string> = {
   micro: 'fast execution',
   meso: 'adaptive reads',
-  macro: 'long-term planning',
+  macro: 'build planning',
 }
 
 const axisInsight: Record<Axis, string> = {
@@ -136,7 +136,7 @@ export const buildTasteSeedInsight = (rawEntries: string[]): TasteSeedInsight =>
     scores,
     dominant,
     secondary,
-    summary: `These games hint at ${axisNouns[dominant]}, with ${axisNouns[secondary]} close behind.`,
+    summary: `These games hint at ${ordered.map((axis) => axisNouns[axis]).join(', and ')}.`,
     detail: `${recognizedNames} give me the first contour of your taste. ${axisInsight[dominant]} The quiz will tune the details.${unknownText}`,
   }
 }

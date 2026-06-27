@@ -1,19 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
+import type { CSSProperties } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   ArrowRightIcon,
-  BrainIcon,
   ExternalLinkIcon,
-  Gamepad2Icon,
-  GaugeIcon,
-  Layers3Icon,
-  MessageCircleIcon,
+  PlayIcon,
+  PlusIcon,
   RotateCcwIcon,
   SparklesIcon,
-  SwordsIcon,
-  TargetIcon,
-  TrophyIcon,
+  XIcon,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,12 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import {
@@ -44,10 +33,13 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import gamefitIcon from './assets/gamefit/gamefit-icon.png'
+import guideOrb from './assets/gamefit/guide-orb.png'
 import { gameCatalog } from './data/catalog'
 import { quizQuestions } from './data/quiz'
 import { buildProfile, describeDislikedGame, recommendGames } from './lib/recommendations'
-import { buildTasteSeedInsight } from './lib/tasteSeed'
+import { buildTasteSeedInsight, findTasteSeedGame } from './lib/tasteSeed'
+import type { TasteSeedInsight } from './lib/tasteSeed'
 import type { Axis, AxisScores } from './types'
 import './App.css'
 
@@ -64,6 +56,7 @@ interface SavedState {
 }
 
 const axes: Axis[] = ['micro', 'meso', 'macro']
+const defaultTopGames = ['Hades', "Baldur's Gate 3", 'Rocket League']
 
 const axisCopy: Record<Axis, { label: string; short: string; description: string }> = {
   micro: {
@@ -87,7 +80,7 @@ const initialState: SavedState = {
   answers: {},
   currentIndex: 0,
   dislikedGameId: 'elden-ring',
-  topGames: ['', '', ''],
+  topGames: defaultTopGames,
   stage: 'landing',
 }
 
@@ -129,7 +122,9 @@ function App() {
   const [answers, setAnswers] = useState<Record<string, string>>(savedState.answers)
   const [currentIndex, setCurrentIndex] = useState(savedState.currentIndex)
   const [dislikedGameId, setDislikedGameId] = useState(savedState.dislikedGameId)
-  const [topGames, setTopGames] = useState<string[]>(savedState.topGames.length === 3 ? savedState.topGames : ['', '', ''])
+  const [topGames, setTopGames] = useState<string[]>(
+    savedState.topGames.length === 3 ? savedState.topGames : defaultTopGames,
+  )
 
   const currentQuestion = quizQuestions[currentIndex]
   const answeredCount = Object.keys(answers).length
@@ -148,10 +143,6 @@ function App() {
     window.scrollTo({ top: 0 })
   }, [currentIndex, stage])
 
-  const startTasteSeed = () => {
-    setStage('taste-seed')
-  }
-
   const beginQuiz = () => {
     setStage('quiz')
     setCurrentIndex(0)
@@ -159,6 +150,10 @@ function App() {
 
   const updateTopGame = (index: number, value: string) => {
     setTopGames((games) => games.map((game, gameIndex) => (gameIndex === index ? value : game)))
+  }
+
+  const clearTopGame = (index: number) => {
+    updateTopGame(index, '')
   }
 
   const chooseAnswer = (optionId: string) => {
@@ -175,7 +170,7 @@ function App() {
 
   const goPrevious = () => {
     if (currentIndex === 0) {
-      setStage('taste-seed')
+      setStage('landing')
       return
     }
     setCurrentIndex((index) => Math.max(0, index - 1))
@@ -185,93 +180,19 @@ function App() {
     setAnswers({})
     setCurrentIndex(0)
     setDislikedGameId('elden-ring')
-    setTopGames(['', '', ''])
+    setTopGames(defaultTopGames)
     setStage('landing')
   }
 
   if (stage === 'taste-seed') {
     return (
-      <motion.main className="taste-stage" {...pageMotion}>
-        <section className="taste-shell" aria-label="Pre-quiz game taste seed">
-          <div className="taste-copy">
-            <div className="taste-heading">
-              <h1>Start with the games that already clicked.</h1>
-              <p>
-                Enter up to three favorites before the quiz. The guide will make a quick first read, then
-                the scenario questions will tune your actual Micro, Meso, and Macro profile.
-              </p>
-            </div>
-
-            <Card className="taste-input-card">
-              <CardHeader>
-                <CardTitle>Your top 3 games</CardTitle>
-                <CardDescription>
-                  Use games you loved, replayed, or could not stop thinking about.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FieldGroup>
-                  {topGames.map((game, index) => (
-                    <Field key={index}>
-                      <FieldLabel htmlFor={`top-game-${index}`}>Game {index + 1}</FieldLabel>
-                      <Input
-                        id={`top-game-${index}`}
-                        value={game}
-                        onChange={(event) => updateTopGame(index, event.target.value)}
-                        placeholder={['Hades', "Baldur's Gate 3", 'Rocket League'][index]}
-                      />
-                    </Field>
-                  ))}
-                  <FieldDescription>
-                    The MVP recognizes the starter catalog first. Unknown titles still help point out what the catalog should learn next.
-                  </FieldDescription>
-                </FieldGroup>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" size="lg" type="button" onClick={beginQuiz}>
-                  Skip for now
-                </Button>
-                <Button className="hero-primary-cta" size="lg" type="button" onClick={beginQuiz}>
-                  Begin tuning
-                  <ArrowRightIcon data-icon="inline-end" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-
-          <div className="guide-panel" aria-live="polite">
-            <div className="guide-orb" aria-hidden="true">
-              <SparklesIcon />
-            </div>
-            <Card className="guide-card">
-              <CardHeader>
-                <div className="guide-card-title">
-                  <MessageCircleIcon />
-                  <span>GameFit guide</span>
-                </div>
-                <CardTitle>{tasteSeedInsight.summary}</CardTitle>
-                <CardDescription>{tasteSeedInsight.detail}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ProfileDiagram scores={tasteSeedInsight.scores} />
-                <AxisBars scores={tasteSeedInsight.scores} compact />
-                <div className="taste-chip-row">
-                  {tasteSeedInsight.matchedGames.length > 0 ? (
-                    tasteSeedInsight.matchedGames.map((game) => (
-                      <Badge variant="secondary" key={game.id}>
-                        <Gamepad2Icon data-icon="inline-start" />
-                        {game.title}
-                      </Badge>
-                    ))
-                  ) : (
-                    <Badge variant="outline">Waiting for recognized games</Badge>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-      </motion.main>
+      <OnboardingStage
+        beginQuiz={beginQuiz}
+        clearTopGame={clearTopGame}
+        insight={tasteSeedInsight}
+        topGames={topGames}
+        updateTopGame={updateTopGame}
+      />
     )
   }
 
@@ -455,99 +376,14 @@ function App() {
 
   return (
     <AnimatePresence mode="wait">
-      <motion.main className="landing-stage" key="landing" {...pageMotion}>
-      <section className="landing-hero">
-        <div className="hero-copy">
-          <div className="landing-brand" aria-label="GameFit">
-            <span>GF</span>
-            GameFit
-          </div>
-          <h1>Find games that fit how you like to learn, fail, and improve.</h1>
-          <p>
-            GameFit maps your play preferences across Micro, Meso, and Macro challenge loops, then
-            recommends games with clear reasons instead of vague genre labels.
-          </p>
-          <div className="hero-actions">
-            <Button className="hero-primary-cta" size="lg" onClick={startTasteSeed}>
-              Start the GameFit quiz
-              <ArrowRightIcon data-icon="inline-end" />
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <a href={sourceVideoUrl} target="_blank" rel="noreferrer">
-                Source video
-              </a>
-            </Button>
-          </div>
-          <p className="source-line">
-            Inspired by {sourceCreator}'s YouTube video{' '}
-            <a href={sourceVideoUrl} target="_blank" rel="noreferrer">
-              “{sourceVideoTitle}”
-            </a>
-            .
-          </p>
-        </div>
-
-        <div className="hero-visual" aria-label="Micro Meso Macro gameplay map preview">
-          <div className="orbit-card micro-card">
-            <TargetIcon />
-            <span>Micro</span>
-          </div>
-          <div className="orbit-card meso-card">
-            <BrainIcon />
-            <span>Meso</span>
-          </div>
-          <div className="orbit-card macro-card">
-            <Layers3Icon />
-            <span>Macro</span>
-          </div>
-          <ProfileDiagram scores={{ micro: 72, meso: 86, macro: 58 }} />
-        </div>
-      </section>
-
-      <section className="idea-section" id="idea">
-        <div className="section-title">
-          <div>
-            <Badge variant="outline">The idea</Badge>
-            <h2>Genres tell you what a game is. Skill loops tell you how it feels.</h2>
-          </div>
-          <p>
-            Elden Ring, Rocket League, Baldur's Gate 3, and Hades can all be “good games” while asking
-            for completely different kinds of patience, attention, and mastery.
-          </p>
-        </div>
-
-        <div className="definition-grid">
-          <DefinitionCard axis="micro" icon={<SwordsIcon />} />
-          <DefinitionCard axis="meso" icon={<GaugeIcon />} />
-          <DefinitionCard axis="macro" icon={<TrophyIcon />} />
-        </div>
-      </section>
-
-      <section className="quiz-preview-section">
-        <Card className="wide-cta-card">
-          <CardHeader>
-            <CardTitle>Take a full-screen archetype-style quiz</CardTitle>
-            <CardDescription>
-              Answer short scenario questions, watch the profile tune itself, then land on a completion
-              page with your lean, mismatch explanations, and recommended games.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="preview-steps">
-              <span>1. Answer scenarios</span>
-              <span>2. Tune the profile</span>
-              <span>3. Reveal recommendations</span>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="hero-primary-cta" size="lg" onClick={startTasteSeed}>
-              Enter quiz page
-              <ArrowRightIcon data-icon="inline-end" />
-            </Button>
-          </CardFooter>
-        </Card>
-      </section>
-      </motion.main>
+      <OnboardingStage
+        beginQuiz={beginQuiz}
+        clearTopGame={clearTopGame}
+        insight={tasteSeedInsight}
+        key="landing"
+        topGames={topGames}
+        updateTopGame={updateTopGame}
+      />
     </AnimatePresence>
   )
 }
@@ -573,19 +409,229 @@ function InlineUtility({ resetQuiz }: { resetQuiz: () => void }) {
   )
 }
 
-function DefinitionCard({ axis, icon }: { axis: Axis; icon: ReactNode }) {
+function OnboardingStage({
+  beginQuiz,
+  clearTopGame,
+  insight,
+  topGames,
+  updateTopGame,
+}: {
+  beginQuiz: () => void
+  clearTopGame: (index: number) => void
+  insight: TasteSeedInsight
+  topGames: string[]
+  updateTopGame: (index: number, value: string) => void
+}) {
+  const focusGameInput = () => {
+    const firstEmptyIndex = topGames.findIndex((game) => game.trim().length === 0)
+    const input = document.getElementById(`top-game-${firstEmptyIndex === -1 ? 2 : firstEmptyIndex}`)
+    input?.focus()
+  }
+
   return (
-    <Card className={`definition-card ${axis}`}>
-      <CardHeader>
-        <div className="definition-icon">{icon}</div>
-        <CardTitle>{axisCopy[axis].label}</CardTitle>
-        <CardDescription>{axisCopy[axis].short}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p>{axisCopy[axis].description}</p>
-      </CardContent>
-    </Card>
+    <motion.main className="onboarding-stage" {...pageMotion}>
+      <div className="ice-mountain-scene" aria-hidden="true">
+        <span className="ice-peak peak-one" />
+        <span className="ice-peak peak-two" />
+        <span className="ice-peak peak-three" />
+      </div>
+
+      <section className="onboarding-shell" aria-label="GameFit top games onboarding">
+        <div className="onboarding-intro">
+          <div className="mock-brand" aria-label="GameFit">
+            <img src={gamefitIcon} alt="" />
+            <strong>GameFit</strong>
+          </div>
+
+          <div className="mock-hero-copy">
+            <h1>Start with the games that already clicked.</h1>
+            <p>GameFit maps how you think, adapt, and decide--then matches you with games that fit.</p>
+          </div>
+
+          <a className="source-card" href={sourceVideoUrl} target="_blank" rel="noreferrer">
+            <span>
+              <PlayIcon />
+            </span>
+            <b>Inspired by Surnex's video</b>
+            <small>“{sourceVideoTitle}”</small>
+            <ExternalLinkIcon />
+          </a>
+        </div>
+
+        <Card className="mock-onboarding-card">
+          <CardContent>
+            <div className="mock-games-column">
+              <div className="mock-panel-title">
+                <h2>Your top 3 games</h2>
+                <p>Add the 3 games you've played and loved most.</p>
+              </div>
+
+              <div className="mock-game-list">
+                {topGames.map((game, index) => (
+                  <GameSeedRow
+                    game={game}
+                    index={index}
+                    key={index}
+                    onChange={(value) => updateTopGame(index, value)}
+                    onClear={() => clearTopGame(index)}
+                  />
+                ))}
+              </div>
+
+              <button className="add-game-button" type="button" onClick={focusGameInput}>
+                <PlusIcon />
+                Add a different game
+              </button>
+
+              <Button className="mock-primary-cta" size="lg" type="button" onClick={beginQuiz}>
+                <SparklesIcon data-icon="inline-start" />
+                Begin tuning
+                <ArrowRightIcon data-icon="inline-end" />
+              </Button>
+            </div>
+
+            <div className="mock-guide-column" aria-live="polite">
+              <Card className="mock-guide-card">
+                <CardHeader>
+                  <div className="mock-guide-label">
+                    <SparklesIcon />
+                    <span>GameFit guide</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="guide-chat-row">
+                    <div className="ai-face" aria-hidden="true">
+                      <img src={guideOrb} alt="" />
+                    </div>
+                    <div className="guide-bubble">
+                      <p>{insight.summary} The quiz will tune the details.</p>
+                    </div>
+                  </div>
+
+                  <div className="gauge-panel">
+                    {axes.map((axis) => (
+                      <MiniGauge axis={axis} key={axis} value={insight.scores[axis]} />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Button className="mock-skip-button" variant="outline" size="lg" type="button" onClick={beginQuiz}>
+                Skip for now
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <section className="next-rail" aria-label="What happens next">
+          <div className="next-copy">
+            <h2>What happens next</h2>
+            <p>A quick quiz, your profile, then game matches that fit you.</p>
+          </div>
+          <div className="next-step quiz-step">
+            <span>01</span>
+            <div>
+              <h3>The quiz</h3>
+              <p>Answer how you think, decide, and adapt.</p>
+            </div>
+            <div className="mini-question" aria-hidden="true">
+              <small>When the game gets intense, you...</small>
+              <b>Look for a smarter angle</b>
+              <i />
+            </div>
+          </div>
+          <div className="next-step profile-step">
+            <span>02</span>
+            <div>
+              <h3>Your profile</h3>
+              <p>See your Micro, Meso, Macro skills map.</p>
+            </div>
+            <ProfileDiagram scores={insight.scores} />
+          </div>
+          <div className="next-step matches-step">
+            <span>03</span>
+            <div>
+              <h3>Game matches</h3>
+              <p>Discover games that match how you think and play.</p>
+            </div>
+            <div className="mini-match-list" aria-hidden="true">
+              {['XCOM 2', 'Slay the Spire', 'Hollow Knight'].map((title, index) => (
+                <div key={title}>
+                  <b>{title}</b>
+                  <small>{[92, 86, 78][index]}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <a className="bottom-source-link" href={sourceVideoUrl} target="_blank" rel="noreferrer">
+          <PlayIcon />
+          Source: {sourceCreator} -- “{sourceVideoTitle}”
+          <ExternalLinkIcon />
+        </a>
+      </section>
+    </motion.main>
   )
+}
+
+function GameSeedRow({
+  game,
+  index,
+  onChange,
+  onClear,
+}: {
+  game: string
+  index: number
+  onChange: (value: string) => void
+  onClear: () => void
+}) {
+  const match = findTasteSeedGame(game)
+  const title = game.trim() || defaultTopGames[index]
+
+  return (
+    <div className="game-seed-row">
+      <span className="seed-number">{index + 1}</span>
+      <span className="seed-cover" style={{ '--seed-color': match?.color ?? '#175ec7' } as CSSProperties}>
+        {gameInitials(title)}
+      </span>
+      <Input
+        aria-label={`Game ${index + 1}`}
+        id={`top-game-${index}`}
+        value={game}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={defaultTopGames[index]}
+      />
+      <button aria-label={`Remove game ${index + 1}`} type="button" onClick={onClear}>
+        <XIcon />
+      </button>
+    </div>
+  )
+}
+
+function MiniGauge({ axis, value }: { axis: Axis; value: number }) {
+  const level = value >= 72 ? 'High' : value >= 58 ? 'Medium-High' : value >= 42 ? 'Medium' : 'Light'
+  const rotation = -118 + value * 1.55
+
+  return (
+    <div className={`mini-gauge ${axis}`}>
+      <h3>{axisCopy[axis].label}</h3>
+      <p>{axis === 'micro' ? 'Mechanics & Execution' : axis === 'meso' ? 'Systems & Interactions' : 'Strategy & Adaptation'}</p>
+      <div className="gauge-arc" style={{ '--gauge-rotation': `${rotation}deg` } as CSSProperties}>
+        <span />
+      </div>
+      <small>{level}</small>
+    </div>
+  )
+}
+
+function gameInitials(title: string) {
+  return title
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join('')
 }
 
 function ProfileDiagram({ scores }: { scores: AxisScores }) {
