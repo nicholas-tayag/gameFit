@@ -3,11 +3,19 @@ import type { CSSProperties } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   ArrowRightIcon,
+  BrainIcon,
+  ClockIcon,
+  CompassIcon,
   ExternalLinkIcon,
+  FlameIcon,
+  Gamepad2Icon,
+  LightbulbIcon,
   PlayIcon,
   PlusIcon,
   RotateCcwIcon,
+  ShieldAlertIcon,
   SparklesIcon,
+  TrophyIcon,
   XIcon,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -40,10 +48,11 @@ import { quizQuestions } from './data/quiz'
 import { buildProfile, describeDislikedGame, recommendGames } from './lib/recommendations'
 import { buildTasteSeedInsight, findTasteSeedGame } from './lib/tasteSeed'
 import type { TasteSeedInsight } from './lib/tasteSeed'
-import type { Axis, AxisScores } from './types'
+import type { Axis, AxisScores, FrictionTag, Recommendation, SkillProfile } from './types'
 import './App.css'
 
 type AppStage = 'landing' | 'taste-seed' | 'quiz' | 'results'
+type ResultLens = 'profile' | 'friction' | 'matches'
 
 const storageKey = 'gamefit:v2'
 
@@ -75,6 +84,37 @@ const axisCopy: Record<Axis, { label: string; short: string; description: string
     description: 'Builds, routes, economies, team plans, progression, optimization, and consequences over time.',
   },
 }
+
+const axisResultCopy: Record<Axis, { pressure: string; feedback: string; burnout: string; practice: string }> = {
+  micro: {
+    pressure: 'You enjoy pressure when input, timing, aim, or movement visibly improves.',
+    feedback: 'Fast retries and readable consequences will keep the learning loop feeling fair.',
+    burnout: 'Punishing execution checks can become draining when the game withholds recovery time.',
+    practice: 'Pick games where a short session can produce one cleaner route, combo, dodge, or attempt.',
+  },
+  meso: {
+    pressure: 'You enjoy pressure when the situation changes and you can make a better read.',
+    feedback: 'Good matches should show why a decision worked, not only whether you won or lost.',
+    burnout: 'Chaos without readable signals can feel random rather than skillful.',
+    practice: 'Pick games where each run, match, or mission teaches sharper risk and timing reads.',
+  },
+  macro: {
+    pressure: 'You enjoy pressure when choices echo later through builds, routes, economies, or priorities.',
+    feedback: 'Good matches should make long-term decisions visible before they become chores.',
+    burnout: 'Slow setup can feel like friction when the game delays meaningful agency too long.',
+    practice: 'Pick games where one session lets you revise a build, plan, route, or resource priority.',
+  },
+}
+
+const staggerContainer = {
+  initial: {},
+  animate: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+} as const
+
+const staggerItem = {
+  initial: { opacity: 0, y: 18, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+} as const
 
 const initialState: SavedState = {
   answers: {},
@@ -116,12 +156,112 @@ const pageMotion = {
   transition: { duration: 0.32, ease: 'easeOut' },
 } as const
 
+const hasTag = (profile: SkillProfile, tags: FrictionTag[]) =>
+  tags.some((tag) => profile.likedTags.includes(tag) || profile.dislikedTags.includes(tag))
+
+const scoreLabel = (score: number) => {
+  if (score >= 78) return 'Strong signal'
+  if (score >= 58) return 'Active signal'
+  if (score >= 38) return 'Flexible'
+  return 'Low pressure'
+}
+
+const buildResultRead = (
+  profile: SkillProfile,
+  recommendations: Recommendation[],
+  dislikedReflection?: string,
+) => {
+  const axisOrder = axes.toSorted((a, b) => profile.scores[b] - profile.scores[a])
+  const dominant = profile.dominant
+  const secondary = profile.secondary
+  const topGame = recommendations[0]?.game.title ?? 'your top match'
+  const quickGame =
+    recommendations.find((recommendation) => recommendation.game.sessionLength.includes('5-'))?.game.title ?? topGame
+  const deepGame =
+    recommendations.find((recommendation) => recommendation.game.sessionLength.includes('60'))?.game.title ?? topGame
+
+  const autonomy = Math.min(
+    96,
+    42 +
+      (hasTag(profile, ['open-ended', 'experimentation', 'buildcraft', 'systems']) ? 22 : 0) +
+      Math.round(profile.scores.macro * 0.26) +
+      Math.round(profile.scores.meso * 0.12),
+  )
+  const competence = Math.min(
+    96,
+    46 +
+      (hasTag(profile, ['precision', 'pattern-reading', 'speed']) ? 24 : 0) +
+      Math.round(profile.scores.micro * 0.22) +
+      Math.round(profile.scores.meso * 0.12),
+  )
+  const social = Math.min(
+    92,
+    34 + (profile.likedTags.includes('team-pressure') ? 34 : 0) - (profile.dislikedTags.includes('team-pressure') ? 18 : 0),
+  )
+
+  return {
+    compassCaption: `${axisCopy[dominant].label} is your strongest signal; ${axisCopy[secondary].label} shapes how that pressure should be delivered.`,
+    lensCopy: {
+      profile: axisResultCopy[dominant].pressure,
+      friction: dislikedReflection ?? axisResultCopy[dominant].burnout,
+      matches: `${topGame} leads because its challenge mix sits closest to your ${axisCopy[dominant].label}/${axisCopy[secondary].label} profile.`,
+    },
+    axisLoops: axisOrder.map((axis) => ({
+      axis,
+      title: scoreLabel(profile.scores[axis]),
+      copy:
+        axis === dominant
+          ? axisResultCopy[axis].feedback
+          : axis === secondary
+            ? axisResultCopy[axis].practice
+            : axisResultCopy[axis].burnout,
+    })),
+    motivationSignals: [
+      {
+        label: 'Competence',
+        value: competence,
+        copy: 'You are likely to stay engaged when the game proves you are getting better.',
+      },
+      {
+        label: 'Autonomy',
+        value: autonomy,
+        copy: 'You are likely to enjoy having room to choose routes, builds, or experiments.',
+      },
+      {
+        label: 'Social pressure',
+        value: social,
+        copy: profile.dislikedTags.includes('team-pressure')
+          ? 'Team stakes may need to be optional or low-cost.'
+          : 'Other players can add energy when the feedback stays readable.',
+      },
+    ],
+    sessionPlans: [
+      {
+        label: 'Quick proof',
+        icon: <ClockIcon />,
+        copy: `Try ${quickGame} when you want feedback inside one short session.`,
+      },
+      {
+        label: 'Deep fit',
+        icon: <CompassIcon />,
+        copy: `Try ${deepGame} when you want your decisions to compound over time.`,
+      },
+      {
+        label: 'Learning loop',
+        icon: <LightbulbIcon />,
+        copy: axisResultCopy[dominant].practice,
+      },
+    ],
+  }
+}
+
 function App() {
   const savedState = useMemo(loadSavedState, [])
   const [stage, setStage] = useState<AppStage>(savedState.stage)
   const [answers, setAnswers] = useState<Record<string, string>>(savedState.answers)
   const [currentIndex, setCurrentIndex] = useState(savedState.currentIndex)
   const [dislikedGameId, setDislikedGameId] = useState(savedState.dislikedGameId)
+  const [resultLens, setResultLens] = useState<ResultLens>('profile')
   const [topGames, setTopGames] = useState<string[]>(
     savedState.topGames.length === 3 ? savedState.topGames : defaultTopGames,
   )
@@ -133,6 +273,11 @@ function App() {
   const tasteSeedInsight = useMemo(() => buildTasteSeedInsight(topGames), [topGames])
   const recommendations = useMemo(() => recommendGames(profile, dislikedGameId, 8), [dislikedGameId, profile])
   const dislikedReflection = describeDislikedGame(profile, dislikedGameId)
+  const resultRead = useMemo(() => buildResultRead(profile, recommendations, dislikedReflection), [
+    dislikedReflection,
+    profile,
+    recommendations,
+  ])
   const selectedAnswer = answers[currentQuestion.id]
   useEffect(() => {
     const state: SavedState = { answers, currentIndex, dislikedGameId, topGames, stage }
@@ -263,65 +408,152 @@ function App() {
       <motion.main className="results-stage" {...pageMotion}>
         <InlineUtility resetQuiz={resetQuiz} />
 
-        <section className="results-hero">
+        <motion.section className="results-hero enhanced-results-hero" variants={staggerContainer} initial="initial" animate="animate">
           <div>
-            <Badge variant="secondary">Quiz complete</Badge>
-            <h1>Your gameplay shape is {axisCopy[profile.dominant].label} + {axisCopy[profile.secondary].label}</h1>
-            <p>
-              This is not a skill grade. It is a map of the challenge loops you are most likely to enjoy,
-              tolerate, or bounce off when a game asks for your time.
-            </p>
+            <motion.div variants={staggerItem}>
+              <Badge variant="secondary">Quiz complete</Badge>
+            </motion.div>
+            <motion.h1 variants={staggerItem}>
+              Your gameplay shape is {axisCopy[profile.dominant].label} + {axisCopy[profile.secondary].label}
+            </motion.h1>
+            <motion.p variants={staggerItem}>
+              This is not a skill grade. It is a fit read: what kind of pressure feels satisfying, what feedback
+              helps you learn, and where a game may start costing more patience than it gives back.
+            </motion.p>
+            <motion.div className="result-lens-control" variants={staggerItem}>
+              <ToggleGroup
+                type="single"
+                value={resultLens}
+                onValueChange={(value) => {
+                  if (value) setResultLens(value as ResultLens)
+                }}
+                variant="outline"
+              >
+                <ToggleGroupItem value="profile">Profile</ToggleGroupItem>
+                <ToggleGroupItem value="friction">Friction</ToggleGroupItem>
+                <ToggleGroupItem value="matches">Matches</ToggleGroupItem>
+              </ToggleGroup>
+            </motion.div>
           </div>
-          <ProfileDiagram scores={profile.scores} />
-        </section>
+          <motion.div className="result-compass-shell" variants={staggerItem}>
+            <ProfileDiagram scores={profile.scores} />
+            <div className="compass-caption">
+              <CompassIcon />
+              <span>{resultRead.compassCaption}</span>
+            </div>
+          </motion.div>
+        </motion.section>
 
-        <section className="results-grid">
-          <Card className="profile-report">
-            <CardHeader>
-              <CardTitle>Current lean</CardTitle>
-              <CardDescription>{profile.explanation}</CardDescription>
-              <CardAction>
-                <Badge>{profile.confidence}% confidence</Badge>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <AxisBars scores={profile.scores} />
-            </CardContent>
-            <CardFooter>
-              <p>
-                Your strongest matches should explain both the appeal and the friction. A game can be great
-                and still be wrong for your current taste, patience, or schedule.
-              </p>
-            </CardFooter>
-          </Card>
+        <motion.section className="insight-dashboard" variants={staggerContainer} initial="initial" animate="animate">
+          <motion.div variants={staggerItem}>
+            <Card className="cognitive-card">
+              <CardHeader>
+                <CardTitle>
+                  <BrainIcon />
+                  Challenge-fit read
+                </CardTitle>
+                <CardDescription>{resultRead.lensCopy[resultLens]}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="loop-grid">
+                  {resultRead.axisLoops.map((loop) => (
+                    <div className={`loop-card ${loop.axis}`} key={loop.axis}>
+                      <span>{axisCopy[loop.axis].label}</span>
+                      <h3>{loop.title}</h3>
+                      <p>{loop.copy}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Bounce-off reflection</CardTitle>
-              <CardDescription>Compare your profile against one game that looked interesting but missed.</CardDescription>
-            </CardHeader>
-            <CardContent className="reflection-content">
-              <Select value={dislikedGameId || 'none'} onValueChange={(value) => setDislikedGameId(value === 'none' ? '' : value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choose a game" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="none">Skip for now</SelectItem>
-                    {gameCatalog
-                      .toSorted((a, b) => a.title.localeCompare(b.title))
-                      .map((game) => (
-                        <SelectItem value={game.id} key={game.id}>
-                          {game.title}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <p>{dislikedReflection ?? 'Choose a game to compare its friction against your profile.'}</p>
-            </CardContent>
-          </Card>
-        </section>
+          <motion.div variants={staggerItem}>
+            <Card className="motivation-card">
+              <CardHeader>
+                <CardTitle>
+                  <FlameIcon />
+                  Motivation signals
+                </CardTitle>
+                <CardDescription>Built from your quiz answers using autonomy, competence, and social pressure cues.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="motivation-meter-list">
+                  {resultRead.motivationSignals.map((signal) => (
+                    <MotivationMeter key={signal.label} {...signal} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.section>
+
+        <motion.section className="practice-strip" variants={staggerContainer} initial="initial" animate="animate">
+          {resultRead.sessionPlans.map((plan) => (
+            <motion.div className="practice-card" variants={staggerItem} key={plan.label}>
+              <span>{plan.icon}</span>
+              <div>
+                <h3>{plan.label}</h3>
+                <p>{plan.copy}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.section>
+
+        <motion.section className="results-grid" variants={staggerContainer} initial="initial" animate="animate">
+          <motion.div variants={staggerItem}>
+            <Card className="profile-report">
+              <CardHeader>
+                <CardTitle>Current lean</CardTitle>
+                <CardDescription>{profile.explanation}</CardDescription>
+                <CardAction>
+                  <Badge>{profile.confidence}% confidence</Badge>
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                <AxisBars scores={profile.scores} />
+              </CardContent>
+              <CardFooter>
+                <p>
+                  Your strongest matches should explain both the appeal and the friction. A game can be great
+                  and still be wrong for your current taste, patience, or schedule.
+                </p>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={staggerItem}>
+            <Card className="reflection-card">
+              <CardHeader>
+                <CardTitle>
+                  <ShieldAlertIcon />
+                  Bounce-off reflection
+                </CardTitle>
+                <CardDescription>Compare your profile against one game that looked interesting but missed.</CardDescription>
+              </CardHeader>
+              <CardContent className="reflection-content">
+                <Select value={dislikedGameId || 'none'} onValueChange={(value) => setDislikedGameId(value === 'none' ? '' : value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a game" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="none">Skip for now</SelectItem>
+                      {gameCatalog
+                        .toSorted((a, b) => a.title.localeCompare(b.title))
+                        .map((game) => (
+                          <SelectItem value={game.id} key={game.id}>
+                            {game.title}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <p>{dislikedReflection ?? 'Choose a game to compare its friction against your profile.'}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.section>
 
         <section className="recommendations-section" id="recommendations" aria-label="Recommended games">
           <div className="section-title">
@@ -335,40 +567,11 @@ function App() {
             </Button>
           </div>
 
-          <div className="recommendation-grid">
-            {recommendations.map((recommendation) => (
-              <Card className="game-card" key={recommendation.game.id}>
-                <div className="game-art" style={{ background: recommendation.game.color }}>
-                  <span>{recommendation.matchScore}%</span>
-                </div>
-                <CardHeader>
-                  <CardTitle>{recommendation.game.title}</CardTitle>
-                  <CardDescription>{recommendation.game.genres.join(' / ')}</CardDescription>
-                  <CardAction>
-                    <Badge variant={recommendation.confidence === 'High' ? 'default' : 'secondary'}>
-                      {recommendation.confidence}
-                    </Badge>
-                  </CardAction>
-                </CardHeader>
-                <CardContent className="game-card-content">
-                  <div className="game-meta">
-                    <Badge variant="outline">{recommendation.game.difficultyFeel}</Badge>
-                    <Badge variant="outline">{recommendation.game.sessionLength}</Badge>
-                    <Badge variant="outline">{recommendation.game.platforms.slice(0, 2).join(' / ')}</Badge>
-                  </div>
-                  <div className="reason-block">
-                    <h3>Why this matches</h3>
-                    <p>{recommendation.reasons[0]}</p>
-                  </div>
-                  <Separator />
-                  <div className="reason-block">
-                    <h3>Possible friction</h3>
-                    <p>{recommendation.cautions[0] ?? 'No major mismatch from the preferences you have shared so far.'}</p>
-                  </div>
-                </CardContent>
-              </Card>
+          <motion.div className="recommendation-grid" variants={staggerContainer} initial="initial" animate="animate">
+            {recommendations.map((recommendation, index) => (
+              <RecommendationCard key={recommendation.game.id} recommendation={recommendation} rank={index + 1} />
             ))}
-          </div>
+          </motion.div>
         </section>
       </motion.main>
     )
@@ -406,6 +609,71 @@ function InlineUtility({ resetQuiz }: { resetQuiz: () => void }) {
         Reset
       </Button>
     </div>
+  )
+}
+
+function MotivationMeter({ label, value, copy }: { label: string; value: number; copy: string }) {
+  return (
+    <div className="motivation-meter">
+      <div>
+        <strong>{label}</strong>
+        <span>{value}%</span>
+      </div>
+      <Progress value={value} />
+      <p>{copy}</p>
+    </div>
+  )
+}
+
+function RecommendationCard({ recommendation, rank }: { recommendation: Recommendation; rank: number }) {
+  const topAxis = axes.toSorted((a, b) => recommendation.game.axes[b] - recommendation.game.axes[a])[0]
+
+  return (
+    <motion.div variants={staggerItem} whileHover={{ y: -5 }} whileTap={{ scale: 0.99 }}>
+      <Card className="game-card">
+        <div className="game-art" style={{ background: recommendation.game.color }}>
+          <span className="game-rank">#{rank}</span>
+          <span className="match-score">{recommendation.matchScore}%</span>
+        </div>
+        <CardHeader>
+          <CardTitle>{recommendation.game.title}</CardTitle>
+          <CardDescription>{recommendation.game.genres.join(' / ')}</CardDescription>
+          <CardAction>
+            <Badge variant={recommendation.confidence === 'High' ? 'default' : 'secondary'}>
+              {recommendation.confidence}
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardContent className="game-card-content">
+          <div className="game-meta">
+            <Badge variant="outline">
+              <TrophyIcon data-icon="inline-start" />
+              {axisCopy[topAxis].label}
+            </Badge>
+            <Badge variant="outline">
+              <ClockIcon data-icon="inline-start" />
+              {recommendation.game.sessionLength}
+            </Badge>
+            <Badge variant="outline">
+              <Gamepad2Icon data-icon="inline-start" />
+              {recommendation.game.platforms.slice(0, 2).join(' / ')}
+            </Badge>
+          </div>
+          <div className="match-meter" aria-label={`${recommendation.matchScore}% match`}>
+            <span style={{ width: `${recommendation.matchScore}%` }} />
+          </div>
+          <div className="reason-block">
+            <h3>Why this matches</h3>
+            <p>{recommendation.reasons[0]}</p>
+          </div>
+          <Separator />
+          <div className="reason-block">
+            <h3>Possible friction</h3>
+            <p>{recommendation.cautions[0] ?? 'No major mismatch from the preferences you have shared so far.'}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }
 
