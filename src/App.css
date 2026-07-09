@@ -226,7 +226,8 @@
 .results-grid,
 .results-hero,
 .insight-dashboard,
-.practice-strip {
+.practice-strip,
+.skill-fingerprint-section {
   max-width: 1180px;
   margin: 0 auto;
   padding: 70px 24px;
@@ -269,6 +270,7 @@
 .wide-cta-card,
 .cognitive-card,
 .motivation-card,
+.skill-fingerprint-card,
 .profile-report,
 .reflection-card,
 .results-grid [data-slot='card'],
@@ -1519,6 +1521,7 @@
 
 .cognitive-card,
 .motivation-card,
+.skill-fingerprint-card,
 .reflection-card {
   height: 100%;
   box-shadow: 0 24px 76px hsl(var(--foreground) / 0.09);
@@ -1526,6 +1529,7 @@
 
 .cognitive-card [data-slot='card-title'],
 .motivation-card [data-slot='card-title'],
+.skill-fingerprint-card [data-slot='card-title'],
 .reflection-card [data-slot='card-title'] {
   display: inline-flex;
   align-items: center;
@@ -1534,6 +1538,7 @@
 
 .cognitive-card [data-slot='card-title'] svg,
 .motivation-card [data-slot='card-title'] svg,
+.skill-fingerprint-card [data-slot='card-title'] svg,
 .reflection-card [data-slot='card-title'] svg {
   width: 20px;
   height: 20px;
@@ -1664,6 +1669,65 @@
   margin: 0 0 7px;
   color: hsl(var(--foreground));
   font-weight: 900;
+}
+
+.skill-fingerprint-section {
+  padding-top: 6px;
+  padding-bottom: 18px;
+}
+
+.skill-fingerprint-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.skill-cluster {
+  display: grid;
+  gap: 12px;
+  min-height: 190px;
+  padding: 16px;
+  background: hsl(var(--background) / 0.58);
+  border: 1px solid hsl(var(--border) / 0.74);
+  border-radius: 16px;
+}
+
+.skill-cluster.micro {
+  border-color: hsl(var(--gf-micro) / 0.3);
+}
+
+.skill-cluster.meso {
+  border-color: hsl(var(--gf-meso) / 0.34);
+}
+
+.skill-cluster.macro {
+  border-color: hsl(var(--gf-macro) / 0.34);
+}
+
+.skill-cluster h3 {
+  margin: 0;
+  color: hsl(var(--foreground));
+  font-size: 0.92rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.skill-chip-meter {
+  display: grid;
+  gap: 8px;
+}
+
+.skill-chip-meter > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.skill-chip-meter span {
+  color: hsl(var(--muted-foreground));
 }
 
 .results-grid {
@@ -2053,7 +2117,8 @@
   }
 
   .loop-grid,
-  .practice-strip {
+  .practice-strip,
+  .skill-fingerprint-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2086,6 +2151,7 @@
   .idea-section,
   .insight-dashboard,
   .practice-strip,
+  .skill-fingerprint-section,
   .quiz-preview-section,
   .recommendations-section,
   .results-grid,

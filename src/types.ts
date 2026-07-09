@@ -2,6 +2,24 @@ export type Axis = 'micro' | 'meso' | 'macro'
 
 export type AxisScores = Record<Axis, number>
 
+export type SkillTag =
+  | 'aim'
+  | 'movement'
+  | 'timing'
+  | 'reaction'
+  | 'inputPrecision'
+  | 'patternReading'
+  | 'positioning'
+  | 'adaptation'
+  | 'riskAssessment'
+  | 'strategy'
+  | 'resourceManagement'
+  | 'buildPlanning'
+  | 'mapControl'
+  | 'teamCoordination'
+
+export type SkillScores = Record<SkillTag, number>
+
 export type FrictionTag =
   | 'precision'
   | 'punishing'
@@ -23,6 +41,7 @@ export interface QuizOption {
   label: string
   description: string
   deltas: AxisScores
+  skillDeltas?: Partial<SkillScores>
   likes?: FrictionTag[]
   dislikes?: FrictionTag[]
 }
@@ -36,6 +55,7 @@ export interface QuizQuestion {
 
 export interface SkillProfile {
   scores: AxisScores
+  skillScores: SkillScores
   dominant: Axis
   secondary: Axis
   confidence: number
@@ -50,6 +70,7 @@ export interface GameCatalogItem {
   platforms: string[]
   genres: string[]
   axes: AxisScores
+  skillProfile?: Partial<SkillScores>
   frictionTags: FrictionTag[]
   difficultyFeel: string
   sessionLength: string
@@ -64,4 +85,5 @@ export interface Recommendation {
   confidence: 'High' | 'Medium' | 'Exploratory'
   reasons: string[]
   cautions: string[]
+  skillReasons: string[]
 }

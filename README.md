@@ -146,3 +146,7 @@ Avoid overfitting the early product to one community. The Micro/Meso/Macro frame
 ## Future Iterations
 
 See [docs/future-iterations.md](/Users/nicky/GithubRepos/gamefit/docs/future-iterations.md) for a staged roadmap covering accounts, analytics, catalog expansion, APIs, and community features.
+
+## AI / ML Roadmap
+
+See [docs/ml-pipeline-roadmap.md](/Users/nicky/GithubRepos/gamefit/docs/ml-pipeline-roadmap.md) for the recommender-system roadmap: hierarchical skill taxonomy, feature extraction, hybrid ranking, embedding-assisted catalog enrichment, anonymous feedback learning, and learning-to-rank evaluation.

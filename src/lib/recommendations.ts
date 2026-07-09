@@ -1,6 +1,15 @@
 import { gameCatalog } from '../data/catalog'
 import { quizQuestions } from '../data/quiz'
-import type { Axis, AxisScores, FrictionTag, Recommendation, SkillProfile } from '../types'
+import {
+  axisSimilarityScore,
+  buildSkillProfileFromAnswers,
+  describeSkillMatches,
+  frictionFit,
+  inferGameSkillProfile,
+  skillFitScore,
+  topSkillMatches,
+} from './mlFeatures'
+import type { Axis, AxisScores, FrictionTag, QuizOption, Recommendation, SkillProfile } from '../types'
 
 const axes: Axis[] = ['micro', 'meso', 'macro']
 
@@ -35,11 +44,13 @@ export const buildProfile = (answers: Record<string, string>): SkillProfile => {
   const rawScores: AxisScores = { micro: 0, meso: 0, macro: 0 }
   const likedTags: FrictionTag[] = []
   const dislikedTags: FrictionTag[] = []
+  const selectedOptions: QuizOption[] = []
 
   for (const question of quizQuestions) {
     const selected = question.options.find((option) => option.id === answers[question.id])
     if (!selected) continue
 
+    selectedOptions.push(selected)
     for (const axis of axes) {
       rawScores[axis] += selected.deltas[axis]
     }
@@ -55,6 +66,7 @@ export const buildProfile = (answers: Record<string, string>): SkillProfile => {
 
   return {
     scores,
+    skillScores: buildSkillProfileFromAnswers(selectedOptions),
     dominant,
     secondary,
     confidence,
@@ -80,7 +92,6 @@ export const recommendGames = (
   dislikedGameId?: string,
   limit = 8,
 ): Recommendation[] => {
-  const liked = new Set(profile.likedTags)
   const disliked = new Set(profile.dislikedTags)
   const dislikedGame = gameCatalog.find((game) => game.id === dislikedGameId)
   const dislikedGameTags = new Set(dislikedGame?.frictionTags ?? [])
@@ -89,14 +100,18 @@ export const recommendGames = (
     .filter((game) => game.id !== dislikedGameId)
     .map((game) => {
       const distanceScore = Math.max(0, 100 - vectorDistance(profile.scores, game.axes) / 1.55)
-      const likedBonus = game.frictionTags.reduce((bonus, tag) => bonus + (liked.has(tag) ? 4 : 0), 0)
-      const dislikedPenalty = game.frictionTags.reduce((penalty, tag) => penalty + (disliked.has(tag) ? 6 : 0), 0)
+      const axisScore = axisSimilarityScore(profile.scores, game.axes)
+      const gameSkills = inferGameSkillProfile(game)
+      const subSkillScore = skillFitScore(profile.skillScores, gameSkills)
+      const { likedBonus, dislikedPenalty } = frictionFit(game.frictionTags, profile.likedTags, profile.dislikedTags)
       const dislikedGamePenalty = game.frictionTags.reduce((penalty, tag) => penalty + (dislikedGameTags.has(tag) ? 3 : 0), 0)
-      const matchScore = Math.round(Math.max(1, Math.min(99, distanceScore + likedBonus - dislikedPenalty - dislikedGamePenalty)))
+      const hybridScore = axisScore * 0.56 + subSkillScore * 0.34 + likedBonus - dislikedPenalty - dislikedGamePenalty
+      const matchScore = Math.round(Math.max(1, Math.min(99, hybridScore || distanceScore)))
       const topAxes = axes.toSorted((a, b) => game.axes[b] - game.axes[a]).slice(0, 2)
+      const skillReasons = describeSkillMatches(topSkillMatches(profile.skillScores, gameSkills, 3))
       const reasons = [
         game.matchBlurbs[profile.dominant],
-        `${game.title} also emphasizes ${topAxes.map((axis) => axisLabels[axis]).join(' and ')}.`,
+        `${game.title} also emphasizes ${topAxes.map((axis) => axisLabels[axis]).join(' and ')} with a ${subSkillScore}% sub-skill fit.`,
       ]
       const cautions = game.frictionTags
         .filter((tag) => disliked.has(tag) || dislikedGameTags.has(tag))
@@ -109,6 +124,7 @@ export const recommendGames = (
         confidence: confidenceFor(matchScore),
         reasons,
         cautions,
+        skillReasons,
       }
     })
     .toSorted((a, b) => b.matchScore - a.matchScore || a.game.title.localeCompare(b.game.title))

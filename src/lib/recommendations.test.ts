@@ -29,6 +29,8 @@ describe('recommendGames', () => {
     expect(recommendations).toHaveLength(5)
     expect(recommendations[0].matchScore).toBeGreaterThanOrEqual(recommendations[1].matchScore)
     expect(recommendations[0].reasons.join(' ')).toContain(recommendations[0].game.title)
+    expect(recommendations[0].skillReasons.length).toBeGreaterThan(0)
+    expect(recommendations[0].skillReasons[0]).toContain(':')
   })
 
   it('excludes the disliked game and surfaces mismatch language', () => {

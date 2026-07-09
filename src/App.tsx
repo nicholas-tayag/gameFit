@@ -45,10 +45,11 @@ import gamefitIcon from './assets/gamefit/gamefit-icon.png'
 import guideOrb from './assets/gamefit/guide-orb.png'
 import { gameCatalog } from './data/catalog'
 import { quizQuestions } from './data/quiz'
+import { skillCopy, skillTags } from './data/skillTaxonomy'
 import { buildProfile, describeDislikedGame, recommendGames } from './lib/recommendations'
 import { buildTasteSeedInsight, findTasteSeedGame } from './lib/tasteSeed'
 import type { TasteSeedInsight } from './lib/tasteSeed'
-import type { Axis, AxisScores, FrictionTag, Recommendation, SkillProfile } from './types'
+import type { Axis, AxisScores, FrictionTag, Recommendation, SkillProfile, SkillScores } from './types'
 import './App.css'
 
 type AppStage = 'landing' | 'taste-seed' | 'quiz' | 'results'
@@ -500,6 +501,25 @@ function App() {
           ))}
         </motion.section>
 
+        <motion.section className="skill-fingerprint-section" variants={staggerContainer} initial="initial" animate="animate">
+          <motion.div variants={staggerItem}>
+            <Card className="skill-fingerprint-card">
+              <CardHeader>
+                <CardTitle>
+                  <SparklesIcon />
+                  Skill fingerprint
+                </CardTitle>
+                <CardDescription>
+                  GameFit now breaks the three-axis profile into a finer skill taxonomy for recommendation scoring.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SkillFingerprint scores={profile.skillScores} />
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.section>
+
         <motion.section className="results-grid" variants={staggerContainer} initial="initial" animate="animate">
           <motion.div variants={staggerItem}>
             <Card className="profile-report">
@@ -625,6 +645,35 @@ function MotivationMeter({ label, value, copy }: { label: string; value: number;
   )
 }
 
+function SkillFingerprint({ scores }: { scores: SkillScores }) {
+  return (
+    <div className="skill-fingerprint-grid">
+      {(['micro', 'meso', 'macro'] as const).map((axis) => {
+        const topAxisSkills = skillTags
+          .filter((skill) => skillCopy[skill].axis === axis)
+          .map((skill) => ({ skill, value: scores[skill] }))
+          .toSorted((a, b) => b.value - a.value || skillCopy[a.skill].label.localeCompare(skillCopy[b.skill].label))
+          .slice(0, 3)
+
+        return (
+          <div className={`skill-cluster ${axis}`} key={axis}>
+            <h3>{axisCopy[axis].label}</h3>
+            {topAxisSkills.map((item) => (
+              <div className="skill-chip-meter" key={item.skill}>
+                <div>
+                  <strong>{skillCopy[item.skill].label}</strong>
+                  <span>{item.value}</span>
+                </div>
+                <Progress value={item.value} />
+              </div>
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function RecommendationCard({ recommendation, rank }: { recommendation: Recommendation; rank: number }) {
   const topAxis = axes.toSorted((a, b) => recommendation.game.axes[b] - recommendation.game.axes[a])[0]
 
@@ -662,6 +711,11 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
           <div className="match-meter" aria-label={`${recommendation.matchScore}% match`}>
             <span style={{ width: `${recommendation.matchScore}%` }} />
           </div>
+          <div className="reason-block">
+            <h3>Top skill signals</h3>
+            <p>{recommendation.skillReasons.slice(0, 2).join(' ')}</p>
+          </div>
+          <Separator />
           <div className="reason-block">
             <h3>Why this matches</h3>
             <p>{recommendation.reasons[0]}</p>
