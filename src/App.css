@@ -2065,6 +2065,289 @@
   }
 }
 
+/* Rikai-inspired product polish: quieter, sharper, less generative gloss. */
+.onboarding-stage {
+  color: #08111f;
+  background:
+    linear-gradient(90deg, rgb(247 251 255 / 0.18), rgb(247 251 255 / 0.82) 58%, rgb(247 251 255 / 0.94)),
+    #f7fbff;
+}
+
+.ice-mountain-scene {
+  filter: saturate(0.82) contrast(0.96);
+}
+
+.ice-mountain-scene::before {
+  background:
+    linear-gradient(90deg, rgb(247 251 255 / 0.08), rgb(247 251 255 / 0.72) 58%, rgb(247 251 255 / 0.94)),
+    radial-gradient(circle at 76% 40%, rgb(255 255 255 / 0.54), transparent 34%);
+}
+
+.mock-brand {
+  gap: 12px;
+  font-size: 1.18rem;
+  letter-spacing: 0;
+}
+
+.mock-brand strong::after {
+  margin-left: 10px;
+  color: #607086;
+  content: 'skill recommender';
+  font-size: 0.76rem;
+  font-weight: 760;
+}
+
+.mock-brand img {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.mock-hero-copy h1 {
+  max-width: 560px;
+  font-size: clamp(3rem, 5.7vw, 6.4rem);
+  letter-spacing: 0;
+  line-height: 0.88;
+}
+
+.mock-hero-copy h1::after {
+  content: '';
+}
+
+.mock-hero-copy p {
+  max-width: 440px;
+  color: #43536a;
+  font-size: 1.06rem;
+}
+
+.skill-ticker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 410px;
+}
+
+.skill-ticker span {
+  padding: 7px 10px;
+  color: #172235;
+  background: rgb(255 255 255 / 0.54);
+  border: 1px solid rgb(98 119 148 / 0.26);
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 820;
+  text-transform: lowercase;
+}
+
+.source-card,
+.mock-onboarding-card,
+.mock-guide-card,
+.next-rail,
+.next-step,
+.game-seed-row,
+.guide-bubble,
+.gauge-panel,
+.mock-skip-button {
+  background: rgb(255 255 255 / 0.66);
+  border-color: rgb(86 104 132 / 0.22);
+  box-shadow: none;
+  backdrop-filter: blur(18px) saturate(1.05);
+}
+
+.mock-onboarding-card,
+.next-rail {
+  border-radius: 18px;
+}
+
+.mock-guide-card {
+  border-radius: 16px;
+}
+
+.game-seed-row {
+  min-height: 74px;
+  border-radius: 10px;
+}
+
+.seed-number,
+.seed-cover,
+.next-step > span {
+  border-radius: 8px;
+}
+
+.game-seed-row [data-slot='input'] {
+  color: #10192a;
+  font-size: 1.08rem;
+}
+
+.mock-panel-title h2 {
+  font-size: 1.18rem;
+}
+
+.mock-panel-title p,
+.guide-bubble p,
+.mock-hero-copy p,
+.source-card small,
+.next-copy p,
+.next-step p {
+  color: #4b5b72;
+}
+
+.source-card {
+  grid-template-columns: 34px 1fr 18px;
+  min-height: 74px;
+  border-radius: 12px;
+}
+
+.source-card span,
+.bottom-source-link svg:first-child {
+  background: #10192a;
+}
+
+.mock-primary-cta {
+  min-height: 60px;
+  color: #f8fbff;
+  background: #10192a;
+  border: 1px solid rgb(255 255 255 / 0.72);
+  border-radius: 12px;
+  box-shadow: none;
+  font-size: 1.08rem;
+}
+
+.mock-primary-cta::before,
+.mock-primary-cta::after {
+  display: none;
+}
+
+.mock-guide-label {
+  color: #24344e;
+  font-size: 0.82rem;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+
+.ai-face {
+  width: 78px;
+  height: 78px;
+  border: 1px solid rgb(49 66 92 / 0.24);
+  box-shadow: none;
+  animation: none;
+}
+
+.guide-chat-row {
+  grid-template-columns: 78px minmax(0, 1fr);
+}
+
+.guide-bubble {
+  border-radius: 12px;
+}
+
+.guide-bubble::before {
+  display: none;
+}
+
+.mini-gauge {
+  background: rgb(255 255 255 / 0.36);
+}
+
+.next-rail {
+  min-height: 176px;
+}
+
+.next-step {
+  border-radius: 12px;
+}
+
+.results-stage {
+  background:
+    linear-gradient(180deg, rgb(247 251 255 / 0.96), rgb(236 243 251 / 0.92)),
+    hsl(var(--background));
+}
+
+.inline-utility,
+.enhanced-results-hero::before,
+.cognitive-card,
+.motivation-card,
+.skill-fingerprint-card,
+.profile-report,
+.reflection-card,
+.practice-card,
+.game-card,
+.profile-diagram {
+  box-shadow: none;
+}
+
+.enhanced-results-hero::before,
+.cognitive-card,
+.motivation-card,
+.skill-fingerprint-card,
+.profile-report,
+.reflection-card,
+.practice-card,
+.game-card {
+  background: rgb(255 255 255 / 0.7);
+  border-color: rgb(76 93 121 / 0.2);
+  border-radius: 14px;
+  backdrop-filter: blur(16px) saturate(1.02);
+}
+
+.enhanced-results-hero {
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.enhanced-results-hero::before {
+  inset: 10px 12px;
+  height: auto;
+}
+
+.results-hero h1,
+.section-title h2 {
+  letter-spacing: 0;
+}
+
+.results-hero h1 {
+  font-size: clamp(3rem, 6.2vw, 6rem);
+}
+
+.result-lens-control [data-slot='toggle-group'],
+.skill-cluster,
+.loop-card,
+.game-art {
+  background: rgb(255 255 255 / 0.52);
+  border-color: rgb(76 93 121 / 0.2);
+  box-shadow: none;
+}
+
+.loop-card,
+.skill-cluster,
+.game-art {
+  border-radius: 10px;
+}
+
+.result-lens-control [data-slot='toggle-group-item'] {
+  font-size: 0.86rem;
+}
+
+.practice-card > span {
+  background: #10192a;
+  border-radius: 10px;
+}
+
+.game-art::before {
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.08), rgb(0 0 0 / 0.18)),
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.12) 0 1px, transparent 1px 10px);
+}
+
+.game-rank,
+.match-score {
+  background: rgb(16 25 42 / 0.78);
+}
+
+.match-meter span {
+  background: #10192a;
+}
+
 @media (max-width: 1060px) {
   .landing-hero,
   .taste-shell,

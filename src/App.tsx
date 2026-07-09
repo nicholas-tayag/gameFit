@@ -766,8 +766,16 @@ function OnboardingStage({
           </div>
 
           <div className="mock-hero-copy">
-            <h1>Start with the games that already clicked.</h1>
-            <p>GameFit maps how you think, adapt, and decide--then matches you with games that fit.</p>
+            <h1>Find games by how they ask you to think.</h1>
+            <p>GameFit reads the pressure you enjoy: execution, adaptation, planning, and the skills underneath.</p>
+          </div>
+
+          <div className="skill-ticker" aria-label="GameFit skill taxonomy preview">
+            {['aim', 'movement', 'timing', 'positioning', 'adaptation', 'strategy', 'resource planning', 'buildcraft'].map(
+              (skill) => (
+                <span key={skill}>{skill}</span>
+              ),
+            )}
           </div>
 
           <a className="source-card" href={sourceVideoUrl} target="_blank" rel="noreferrer">
@@ -816,8 +824,8 @@ function OnboardingStage({
               <Card className="mock-guide-card">
                 <CardHeader>
                   <div className="mock-guide-label">
-                    <SparklesIcon />
-                    <span>GameFit guide</span>
+                    <CompassIcon />
+                    <span>Fit read</span>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -826,7 +834,7 @@ function OnboardingStage({
                       <img src={guideOrb} alt="" />
                     </div>
                     <div className="guide-bubble">
-                      <p>{insight.summary} The quiz will tune the details.</p>
+                      <p>{insight.summary} The quiz narrows the signal.</p>
                     </div>
                   </div>
 
