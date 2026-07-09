@@ -13,6 +13,7 @@ import {
   PlayIcon,
   PlusIcon,
   RotateCcwIcon,
+  SearchIcon,
   ShieldAlertIcon,
   TrophyIcon,
   XIcon,
@@ -743,6 +744,26 @@ function OnboardingStage({
   topGames: string[]
   updateTopGame: (index: number, value: string) => void
 }) {
+  const [catalogSearch, setCatalogSearch] = useState('')
+  const [targetSlot, setTargetSlot] = useState(0)
+  const normalizedSearch = catalogSearch.trim().toLowerCase()
+  const catalogMatches = gameCatalog
+    .filter((game) => {
+      if (!normalizedSearch) return true
+      return [game.title, ...game.genres, ...game.platforms, game.difficultyFeel, game.sessionLength]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedSearch)
+    })
+    .toSorted((a, b) => a.title.localeCompare(b.title))
+    .slice(0, normalizedSearch ? 8 : 6)
+
+  const chooseCatalogGame = (title: string) => {
+    updateTopGame(targetSlot, title)
+    const nextEmpty = topGames.findIndex((game, index) => index !== targetSlot && game.trim().length === 0)
+    setTargetSlot(nextEmpty === -1 ? Math.min(targetSlot + 1, 2) : nextEmpty)
+  }
+
   const focusGameInput = () => {
     const firstEmptyIndex = topGames.findIndex((game) => game.trim().length === 0)
     const input = document.getElementById(`top-game-${firstEmptyIndex === -1 ? 2 : firstEmptyIndex}`)
@@ -818,6 +839,57 @@ function OnboardingStage({
                 <PlusIcon />
                 Edit games
               </button>
+
+              <div className="catalog-search-panel">
+                <div className="catalog-search-header">
+                  <div>
+                    <h3>Included library</h3>
+                    <p>Search the starter catalog and click a game to place it in a slot.</p>
+                  </div>
+                  <div className="slot-picker" aria-label="Choose which top game slot to fill">
+                    {[0, 1, 2].map((slot) => (
+                      <button
+                        className={targetSlot === slot ? 'active' : ''}
+                        key={slot}
+                        type="button"
+                        onClick={() => setTargetSlot(slot)}
+                      >
+                        {slot + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="catalog-search-box">
+                  <SearchIcon />
+                  <Input
+                    aria-label="Search included game library"
+                    value={catalogSearch}
+                    onChange={(event) => setCatalogSearch(event.target.value)}
+                    placeholder="Search by title, genre, platform..."
+                  />
+                </label>
+
+                <div className="catalog-result-list" aria-label="Included game library results">
+                  {catalogMatches.map((game) => (
+                    <button
+                      className="catalog-result"
+                      key={game.id}
+                      type="button"
+                      onClick={() => chooseCatalogGame(game.title)}
+                    >
+                      <span className="catalog-color" style={{ '--catalog-color': game.color } as CSSProperties} />
+                      <span>
+                        <strong>{game.title}</strong>
+                        <small>
+                          {game.genres.slice(0, 2).join(' / ')} · {game.sessionLength}
+                        </small>
+                      </span>
+                      <b>{axisCopy[axes.toSorted((a, b) => game.axes[b] - game.axes[a])[0]].label}</b>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <Button className="mock-primary-cta" size="lg" type="button" onClick={beginQuiz}>
                 Begin tuning
