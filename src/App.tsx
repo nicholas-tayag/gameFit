@@ -14,7 +14,6 @@ import {
   PlusIcon,
   RotateCcwIcon,
   ShieldAlertIcon,
-  SparklesIcon,
   TrophyIcon,
   XIcon,
 } from 'lucide-react'
@@ -506,7 +505,7 @@ function App() {
             <Card className="skill-fingerprint-card">
               <CardHeader>
                 <CardTitle>
-                  <SparklesIcon />
+                  <CompassIcon />
                   Skill fingerprint
                 </CardTitle>
                 <CardDescription>
@@ -807,14 +806,20 @@ function OnboardingStage({
                   />
                 ))}
               </div>
+              <datalist id="game-catalog-options">
+                {gameCatalog
+                  .toSorted((a, b) => a.title.localeCompare(b.title))
+                  .map((game) => (
+                    <option value={game.title} key={game.id} />
+                  ))}
+              </datalist>
 
               <button className="add-game-button" type="button" onClick={focusGameInput}>
                 <PlusIcon />
-                Add a different game
+                Edit games
               </button>
 
               <Button className="mock-primary-cta" size="lg" type="button" onClick={beginQuiz}>
-                <SparklesIcon data-icon="inline-start" />
                 Begin tuning
                 <ArrowRightIcon data-icon="inline-end" />
               </Button>
@@ -927,9 +932,12 @@ function GameSeedRow({
       </span>
       <Input
         aria-label={`Game ${index + 1}`}
+        autoComplete="off"
         id={`top-game-${index}`}
+        list="game-catalog-options"
         value={game}
         onChange={(event) => onChange(event.target.value)}
+        onFocus={(event) => event.currentTarget.select()}
         placeholder={defaultTopGames[index]}
       />
       <button aria-label={`Remove game ${index + 1}`} type="button" onClick={onClear}>
