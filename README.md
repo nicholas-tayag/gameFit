@@ -16,6 +16,17 @@ Players name a few games they already enjoy, answer short scenario questions, an
 
 The result includes a visual profile and recommendations from a curated local catalog.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Favorite games] --> B[Taste seed]
+    B --> C[Preference quiz]
+    C --> D[Micro / Meso / Macro profile]
+    D --> E[Curated game catalog]
+    E --> F[Personal recommendations]
+```
+
 ## Run locally
 
 ```bash
