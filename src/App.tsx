@@ -42,7 +42,7 @@ import { Separator } from '@/components/ui/separator'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { AmbientSnowfield } from './components/gamefit/AmbientSnowfield'
 import { AnimatedNumber, LiftCard, MagneticButton, Reveal } from './components/gamefit/MotionPrimitives'
-import { MountainJourneyScene } from './components/gamefit/MountainJourneyScene'
+import { VantaClimbScene } from './components/gamefit/VantaClimbScene'
 import gamefitIcon from './assets/gamefit/gamefit-icon.png'
 import guideOrb from './assets/gamefit/guide-orb.png'
 import { gameCatalog } from './data/catalog'
@@ -349,7 +349,7 @@ function App() {
   if (stage === 'quiz') {
     return (
       <motion.main className="quiz-stage" {...pageMotion}>
-        <MountainJourneyScene progress={ascentProgress} stage="quiz" totalCheckpoints={quizQuestions.length} />
+        <VantaClimbScene progress={ascentProgress} stage="quiz" />
         <div className="quiz-chrome">
           <button className="brand-button" type="button" onClick={() => setStage('landing')}>
             <span>GF</span>
@@ -423,7 +423,7 @@ function App() {
 
     return (
       <motion.main className="results-stage" {...pageMotion}>
-        <MountainJourneyScene progress={100} stage="results" totalCheckpoints={quizQuestions.length} />
+        <VantaClimbScene progress={100} stage="results" />
         <AmbientSnowfield progress={100} variant="results" />
         <InlineUtility resetQuiz={resetQuiz} />
 
