@@ -16,6 +16,17 @@ Players name a few games they already enjoy, answer short scenario questions, an
 
 The result includes a visual profile and recommendations from a curated local catalog.
 
+## Catalog Strategy
+
+MVP 1 intentionally ships with a small reviewed catalog so the app stays fast, explainable, and usable without API keys. Future versions can expand the library through public or free game-data sources:
+
+- **RAWG:** broad game metadata, screenshots, platforms, genres, and discovery fields.
+- **IGDB:** rich game database with a free non-commercial API under Twitch terms.
+- **Steam Web API:** official Steam app and store-facing data where a Steam API key is appropriate.
+- **SteamSpy:** Steam popularity and ownership estimates, useful as a trend signal but not as ground truth.
+
+Imported data should be treated as raw evidence. GameFit still needs its own reviewed skill labels for aim, movement, timing, adaptation, resource planning, friction, session length, and challenge style.
+
 ## Architecture
 
 ```mermaid
@@ -39,3 +50,5 @@ Run `pnpm test`, `pnpm lint`, and `pnpm build` to verify the project.
 ## Project status
 
 GameFit is a polished MVP with no account or backend requirements.
+
+See `docs/future-iterations.md` and `docs/ml-pipeline-roadmap.md` for the catalog expansion, analytics, and machine-learning roadmap.

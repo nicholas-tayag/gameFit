@@ -25,9 +25,33 @@ type LiftCardProps = ComponentProps<typeof motion.div> & {
   children: ReactNode
 }
 
-function LiftCard({ children, ...props }: LiftCardProps) {
+function LiftCard({ children, onPointerLeave, onPointerMove, style, ...props }: LiftCardProps) {
+  const rotateX = useMotionValue(0)
+  const rotateY = useMotionValue(0)
+  const springRotateX = useSpring(rotateX, { stiffness: 240, damping: 24, mass: 0.5 })
+  const springRotateY = useSpring(rotateY, { stiffness: 240, damping: 24, mass: 0.5 })
+
   return (
     <motion.div
+      style={{
+        rotateX: springRotateX,
+        rotateY: springRotateY,
+        transformPerspective: 1000,
+        ...style,
+      }}
+      onPointerMove={(event) => {
+        const bounds = event.currentTarget.getBoundingClientRect()
+        const x = (event.clientX - bounds.left) / bounds.width - 0.5
+        const y = (event.clientY - bounds.top) / bounds.height - 0.5
+        rotateX.set(y * -4)
+        rotateY.set(x * 4)
+        onPointerMove?.(event)
+      }}
+      onPointerLeave={(event) => {
+        rotateX.set(0)
+        rotateY.set(0)
+        onPointerLeave?.(event)
+      }}
       whileHover={{ y: -6, scale: 1.01 }}
       whileTap={{ scale: 0.992 }}
       transition={{ type: 'spring', stiffness: 360, damping: 28 }}

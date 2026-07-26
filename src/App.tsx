@@ -724,8 +724,18 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 
   return (
     <LiftCard variants={staggerItem}>
-      <Card className="game-card">
+      <Card className="game-card" data-axis={topAxis}>
+        <div className="game-card-constellation" aria-hidden="true">
+          {axes.map((axis) => (
+            <span
+              className={axis}
+              key={axis}
+              style={{ '--axis-score': recommendation.game.axes[axis] / 100 } as CSSProperties}
+            />
+          ))}
+        </div>
         <div className="game-art" style={{ background: recommendation.game.color }}>
+          <span className="game-art-ice-ring" aria-hidden="true" />
           <span className="game-rank">#{rank}</span>
           <span className="match-score">
             <AnimatedNumber value={recommendation.matchScore} suffix="%" />
@@ -1097,6 +1107,13 @@ function gameInitials(title: string) {
 function ProfileDiagram({ scores }: { scores: AxisScores }) {
   return (
     <div className="profile-diagram">
+      <div className="profile-orbits" aria-hidden="true">
+        {axes.map((axis) => (
+          <span className={axis} key={axis}>
+            <b>{scores[axis]}</b>
+          </span>
+        ))}
+      </div>
       <svg viewBox="0 0 100 100" role="img" aria-label="Micro Meso Macro profile diagram">
         <polygon className="radar-grid outer" points="50,8 92,82 8,82" />
         <polygon className="radar-grid inner" points="50,31 72,70 28,70" />

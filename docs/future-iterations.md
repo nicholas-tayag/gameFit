@@ -31,6 +31,25 @@ This roadmap keeps the MVP simple while leaving clear paths toward a more durabl
 - Consider importing public metadata from third-party game databases, then layering GameFit-specific fit tags on top.
 - Keep human review in the loop so recommendations remain credible and do not collapse into generic genre matching.
 
+### Public Catalog Sources To Evaluate
+
+- **RAWG:** useful for broad metadata, screenshots, release dates, genres, platform coverage, and discovery search. It can help users find titles quickly, but imported genres should not be treated as skill labels.
+- **IGDB:** useful for a normalized game database, companies, platforms, releases, cover art, themes, and modes. Its free API is positioned for non-commercial usage under Twitch terms, so commercial plans need a terms review.
+- **Steam Web API:** useful for official Steam app identifiers and Steam ecosystem hooks. Use it server-side when API keys are involved, and avoid making Steam the only catalog source.
+- **SteamSpy:** useful for popularity estimates, owner ranges, and trend signals from Steam public-profile sampling. Treat it as directional evidence, not exact sales or quality data.
+- **Kaggle / public snapshots:** useful for offline experiments and resume-ready ML evaluation, but verify licensing, freshness, and provenance before using them in production.
+
+### Catalog Pipeline Goal
+
+Start with the current reviewed seed catalog, then add an ingestion job that creates draft records:
+
+1. Pull raw metadata from one or more sources.
+2. Normalize titles, platforms, release dates, genres, tags, images, and Steam app IDs.
+3. Generate candidate skill/friction tags with an LLM or embedding model.
+4. Store drafts separately from approved catalog records.
+5. Review and approve GameFit-specific labels before they affect recommendations.
+6. Track recommendation feedback so future ranking models learn from real player behavior.
+
 ## 5. API And Backend
 
 - Introduce a backend when the product needs saved profiles, moderation, catalog editing, user feedback storage, or partner integrations.

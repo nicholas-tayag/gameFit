@@ -29,6 +29,40 @@ The taxonomy lives in `src/data/skillTaxonomy.ts`. The important design choice i
 
 ## Model Phases
 
+### Phase 0: Catalog Evidence Layer
+
+Before training a model, GameFit needs a repeatable way to collect and review game evidence.
+
+Candidate sources:
+
+- RAWG for broad public metadata, screenshots, platforms, genres, stores, and discovery search.
+- IGDB for a structured non-commercial game database with covers, themes, game modes, companies, platforms, and release data.
+- Steam Web API for official Steam app identifiers and Steam ecosystem data when a backend can protect API keys.
+- SteamSpy for Steam popularity estimates and owner ranges, used only as directional popularity evidence.
+- Public datasets for offline experiments, provided their licenses and freshness are documented.
+
+Target normalized record:
+
+```ts
+type CatalogEvidence = {
+  source: 'rawg' | 'igdb' | 'steam' | 'steamspy' | 'manual'
+  externalId: string
+  title: string
+  platforms: string[]
+  genres: string[]
+  tags: string[]
+  releaseDate?: string
+  popularitySignals?: Record<string, number | string>
+  media?: {
+    coverUrl?: string
+    screenshotUrls?: string[]
+  }
+  evidenceText: string
+}
+```
+
+This evidence should feed draft records, not publish directly. The GameFit value is translating public metadata into skill demands such as aim, timing, positioning, pattern reading, adaptation, map control, resource planning, punishment tolerance, ambiguity, and team pressure.
+
 ### Phase 1: Explainable Content-Based Recommender
 
 Use engineered features:
