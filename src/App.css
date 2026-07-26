@@ -1707,9 +1707,9 @@
 .vanta-climb-scrim {
   inset: 0;
   background:
-    radial-gradient(circle at 66% 16%, rgb(255 255 255 / 0.24), transparent 24%),
-    linear-gradient(90deg, rgb(246 252 255 / 0.55), transparent 34%, rgb(245 250 255 / 0.2)),
-    linear-gradient(180deg, rgb(255 255 255 / 0.1), transparent 42%, rgb(7 18 34 / 0.2));
+    radial-gradient(circle at 66% 16%, rgb(255 255 255 / 0.16), transparent 24%),
+    linear-gradient(90deg, rgb(246 252 255 / 0.34), transparent 36%, rgb(245 250 255 / 0.12)),
+    linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent 48%, rgb(7 18 34 / 0.13));
 }
 
 .vanta-climb-scene.results .climb-mountain-layer,
@@ -1766,14 +1766,14 @@
   margin: 18px auto 0;
   width: min(1120px, calc(100vw - 36px));
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 0.5), rgb(222 241 255 / 0.16)),
-    rgb(255 255 255 / 0.2);
-  border: 1px solid rgb(255 255 255 / 0.4);
+    linear-gradient(145deg, rgb(255 255 255 / 0.32), rgb(222 241 255 / 0.08)),
+    rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.26);
   border-radius: 999px;
   box-shadow:
-    0 24px 80px rgb(16 25 42 / 0.11),
-    inset 0 1px 0 rgb(255 255 255 / 0.68);
-  backdrop-filter: blur(22px) saturate(1.26);
+    0 20px 68px rgb(16 25 42 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 0.5);
+  backdrop-filter: blur(14px) saturate(1.12);
 }
 
 .quiz-progress {
@@ -1805,15 +1805,11 @@
   margin: 28px 8vw 40px auto;
   padding: clamp(18px, 3.4vw, 34px);
   background:
-    radial-gradient(circle at 18% 0%, rgb(255 255 255 / 0.34), transparent 42%),
-    linear-gradient(145deg, rgb(255 255 255 / 0.24), rgb(225 242 255 / 0.08)),
-    rgb(255 255 255 / 0.08);
-  border: 1px solid rgb(255 255 255 / 0.26);
-  border-radius: 42px;
-  box-shadow:
-    0 30px 100px rgb(6 18 34 / 0.1),
-    inset 0 1px 0 rgb(255 255 255 / 0.42);
-  backdrop-filter: blur(14px) saturate(1.08);
+    radial-gradient(ellipse at 58% 48%, rgb(255 255 255 / 0.26), rgb(255 255 255 / 0.1) 38%, transparent 70%);
+  border: 1px solid rgb(255 255 255 / 0.04);
+  border-radius: 46px;
+  box-shadow: none;
+  backdrop-filter: blur(2px);
 }
 
 .quiz-question-copy {
@@ -1824,7 +1820,7 @@
 
 .quiz-question-copy p {
   margin: 0;
-  color: hsl(var(--muted-foreground));
+  color: rgb(16 25 42 / 0.72);
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -1838,11 +1834,12 @@
   font-weight: 900;
   letter-spacing: 0;
   line-height: 0.92;
+  text-shadow: 0 2px 24px rgb(255 255 255 / 0.64);
 }
 
 .quiz-question-copy span {
   max-width: 620px;
-  color: hsl(var(--muted-foreground));
+  color: rgb(16 25 42 / 0.72);
   font-size: 1.04rem;
   line-height: 1.5;
 }
@@ -1864,12 +1861,12 @@
   padding: 16px 20px;
   white-space: normal;
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.08)),
-    rgb(255 255 255 / 0.06);
-  border-color: rgb(255 255 255 / 0.24);
+    linear-gradient(145deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.04)),
+    rgb(255 255 255 / 0.02);
+  border-color: rgb(255 255 255 / 0.12);
   border-radius: 28px;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.24);
-  backdrop-filter: blur(9px) saturate(1.04);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+  backdrop-filter: blur(4px);
   transition:
     transform 180ms ease,
     border-color 180ms ease,
@@ -1888,7 +1885,7 @@
 }
 
 .answer-toggle small {
-  color: hsl(var(--muted-foreground));
+  color: rgb(16 25 42 / 0.66);
   font-size: 0.9rem;
   line-height: 1.45;
   text-align: left;
@@ -1896,18 +1893,23 @@
 
 .answer-toggle[data-state='on'] {
   background:
-    linear-gradient(145deg, rgb(236 250 255 / 0.5), rgb(255 255 255 / 0.2)),
-    hsl(var(--gf-meso) / 0.08);
-  border-color: rgb(125 211 252 / 0.56);
+    linear-gradient(145deg, rgb(236 250 255 / 0.32), rgb(255 255 255 / 0.12)),
+    hsl(var(--gf-meso) / 0.04);
+  border-color: rgb(125 211 252 / 0.42);
   box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.38),
-    0 18px 42px rgb(14 116 144 / 0.1);
+    inset 0 0 0 1px rgb(255 255 255 / 0.22),
+    0 14px 34px rgb(14 116 144 / 0.07);
 }
 
 .quiz-footer {
   display: flex;
   justify-content: space-between;
   gap: 14px;
+}
+
+.quiz-footer [data-slot='button'] {
+  border-radius: 999px;
+  box-shadow: 0 12px 34px rgb(6 18 34 / 0.07);
 }
 
 .results-hero {
@@ -3672,6 +3674,9 @@
     margin: 18px auto 22px;
     padding: 16px;
     border-radius: 28px;
+    background:
+      radial-gradient(ellipse at 58% 44%, rgb(255 255 255 / 0.48), rgb(255 255 255 / 0.2) 52%, transparent 78%);
+    backdrop-filter: blur(5px);
   }
 
   .quiz-question-copy h1 {
