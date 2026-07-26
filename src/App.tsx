@@ -42,6 +42,7 @@ import { Separator } from '@/components/ui/separator'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { AmbientSnowfield } from './components/gamefit/AmbientSnowfield'
 import { AnimatedNumber, LiftCard, MagneticButton, Reveal } from './components/gamefit/MotionPrimitives'
+import { MountainJourneyScene } from './components/gamefit/MountainJourneyScene'
 import gamefitIcon from './assets/gamefit/gamefit-icon.png'
 import guideOrb from './assets/gamefit/guide-orb.png'
 import { gameCatalog } from './data/catalog'
@@ -348,7 +349,7 @@ function App() {
   if (stage === 'quiz') {
     return (
       <motion.main className="quiz-stage" {...pageMotion}>
-        <AmbientSnowfield progress={ascentProgress} variant="quiz" />
+        <MountainJourneyScene progress={ascentProgress} stage="quiz" totalCheckpoints={quizQuestions.length} />
         <div className="quiz-chrome">
           <button className="brand-button" type="button" onClick={() => setStage('landing')}>
             <span>GF</span>
@@ -368,8 +369,6 @@ function App() {
             Reset
           </Button>
         </div>
-
-        <AscentTrail currentIndex={currentIndex} total={quizQuestions.length} />
 
         <section className="quiz-card-shell" aria-label="GameFit quiz question">
           <div className="quiz-question-copy">
@@ -424,6 +423,7 @@ function App() {
 
     return (
       <motion.main className="results-stage" {...pageMotion}>
+        <MountainJourneyScene progress={100} stage="results" totalCheckpoints={quizQuestions.length} />
         <AmbientSnowfield progress={100} variant="results" />
         <InlineUtility resetQuiz={resetQuiz} />
 
@@ -788,41 +788,6 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
         </CardContent>
       </Card>
     </LiftCard>
-  )
-}
-
-function AscentTrail({ currentIndex, total }: { currentIndex: number; total: number }) {
-  const checkpoints = Array.from({ length: total }, (_, index) => index)
-  const progress = Math.round((currentIndex / Math.max(1, total - 1)) * 100)
-
-  return (
-    <aside className="ascent-trail" aria-label={`Mountain ascent checkpoint ${currentIndex + 1} of ${total}`}>
-      <div className="ascent-copy">
-        <span>Checkpoint {currentIndex + 1}</span>
-        <strong>{progress}% to summit</strong>
-      </div>
-      <div className="ascent-map" style={{ '--ascent-progress': progress } as CSSProperties}>
-        <span className="ascent-route" />
-        <motion.span
-          animate={{ offsetDistance: `${progress}%` }}
-          className="ascent-climber"
-          initial={false}
-          transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-        />
-        {checkpoints.map((checkpoint) => {
-          const checkpointProgress = Math.round((checkpoint / Math.max(1, total - 1)) * 100)
-          return (
-            <span
-              className={checkpoint <= currentIndex ? 'ascent-checkpoint reached' : 'ascent-checkpoint'}
-              key={checkpoint}
-              style={{ left: `${checkpointProgress}%` }}
-            >
-              <b>{checkpoint + 1}</b>
-            </span>
-          )
-        })}
-      </div>
-    </aside>
   )
 }
 
