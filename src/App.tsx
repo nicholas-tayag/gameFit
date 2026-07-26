@@ -272,6 +272,7 @@ function App() {
   const currentQuestion = quizQuestions[currentIndex]
   const answeredCount = Object.keys(answers).length
   const progress = Math.round((answeredCount / quizQuestions.length) * 100)
+  const ascentProgress = Math.round((currentIndex / Math.max(1, quizQuestions.length - 1)) * 100)
   const profile = useMemo(() => buildProfile(answers), [answers])
   const tasteSeedInsight = useMemo(() => buildTasteSeedInsight(topGames), [topGames])
   const recommendations = useMemo(() => recommendGames(profile, dislikedGameId, 8), [dislikedGameId, profile])
@@ -347,7 +348,7 @@ function App() {
   if (stage === 'quiz') {
     return (
       <motion.main className="quiz-stage" {...pageMotion}>
-        <AmbientSnowfield variant="quiz" />
+        <AmbientSnowfield progress={ascentProgress} variant="quiz" />
         <div className="quiz-chrome">
           <button className="brand-button" type="button" onClick={() => setStage('landing')}>
             <span>GF</span>
@@ -367,6 +368,8 @@ function App() {
             Reset
           </Button>
         </div>
+
+        <AscentTrail currentIndex={currentIndex} total={quizQuestions.length} />
 
         <section className="quiz-card-shell" aria-label="GameFit quiz question">
           <div className="quiz-question-copy">
@@ -421,7 +424,7 @@ function App() {
 
     return (
       <motion.main className="results-stage" {...pageMotion}>
-        <AmbientSnowfield variant="results" />
+        <AmbientSnowfield progress={100} variant="results" />
         <InlineUtility resetQuiz={resetQuiz} />
 
         <motion.section className="results-reveal" variants={staggerContainer} initial="initial" animate="animate">
@@ -785,6 +788,41 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
         </CardContent>
       </Card>
     </LiftCard>
+  )
+}
+
+function AscentTrail({ currentIndex, total }: { currentIndex: number; total: number }) {
+  const checkpoints = Array.from({ length: total }, (_, index) => index)
+  const progress = Math.round((currentIndex / Math.max(1, total - 1)) * 100)
+
+  return (
+    <aside className="ascent-trail" aria-label={`Mountain ascent checkpoint ${currentIndex + 1} of ${total}`}>
+      <div className="ascent-copy">
+        <span>Checkpoint {currentIndex + 1}</span>
+        <strong>{progress}% to summit</strong>
+      </div>
+      <div className="ascent-map" style={{ '--ascent-progress': progress } as CSSProperties}>
+        <span className="ascent-route" />
+        <motion.span
+          animate={{ offsetDistance: `${progress}%` }}
+          className="ascent-climber"
+          initial={false}
+          transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+        />
+        {checkpoints.map((checkpoint) => {
+          const checkpointProgress = Math.round((checkpoint / Math.max(1, total - 1)) * 100)
+          return (
+            <span
+              className={checkpoint <= currentIndex ? 'ascent-checkpoint reached' : 'ascent-checkpoint'}
+              key={checkpoint}
+              style={{ left: `${checkpointProgress}%` }}
+            >
+              <b>{checkpoint + 1}</b>
+            </span>
+          )
+        })}
+      </div>
+    </aside>
   )
 }
 

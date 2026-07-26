@@ -1,14 +1,21 @@
 import { useEffect, useRef } from 'react'
 
 type AmbientSnowfieldProps = {
+  progress?: number
   variant?: 'landing' | 'quiz' | 'results'
 }
 
-function AmbientSnowfield({ variant = 'landing' }: AmbientSnowfieldProps) {
+function AmbientSnowfield({ progress = 0, variant = 'landing' }: AmbientSnowfieldProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const glintRef = useRef<HTMLSpanElement>(null)
   const ribbonOneRef = useRef<HTMLSpanElement>(null)
   const ribbonTwoRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    root.style.setProperty('--ascent-progress', `${Math.min(100, Math.max(0, progress))}`)
+  }, [progress])
 
   useEffect(() => {
     const root = rootRef.current
@@ -80,6 +87,9 @@ function AmbientSnowfield({ variant = 'landing' }: AmbientSnowfieldProps) {
   return (
     <div className={`ambient-snowfield ${variant}`} ref={rootRef} aria-hidden="true">
       <span className="snowfield-cursor-glow" />
+      <span className="summit-sky" />
+      <span className="ascent-mountain-range range-back" />
+      <span className="ascent-mountain-range range-front" />
       <span className="aurora-ribbon ribbon-one" ref={ribbonOneRef} />
       <span className="aurora-ribbon ribbon-two" ref={ribbonTwoRef} />
       <span className="ice-orbit orbit-one" />
