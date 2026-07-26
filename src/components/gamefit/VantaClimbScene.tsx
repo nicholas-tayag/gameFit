@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import * as THREE from 'three'
 import basecampScene from '../../assets/gamefit/journey/basecamp.jpg'
+import finalApproachScene from '../../assets/gamefit/journey/final-approach.jpg'
+import highCampScene from '../../assets/gamefit/journey/high-camp.jpg'
+import iceCaveScene from '../../assets/gamefit/journey/ice-cave.jpg'
 import ridgeScene from '../../assets/gamefit/journey/ridge.jpg'
 import summitScene from '../../assets/gamefit/journey/summit.jpg'
 
@@ -26,6 +29,20 @@ type VantaWindow = Window & {
 type VantaClimbSceneProps = {
   progress: number
   stage: 'quiz' | 'results'
+}
+
+const journeyFrames = [
+  { className: 'basecamp', focus: 0, src: basecampScene },
+  { className: 'ridge', focus: 20, src: ridgeScene },
+  { className: 'ice-cave', focus: 40, src: iceCaveScene },
+  { className: 'high-camp', focus: 60, src: highCampScene },
+  { className: 'final-approach', focus: 80, src: finalApproachScene },
+  { className: 'summit', focus: 100, src: summitScene },
+]
+
+function frameOpacity(progress: number, focus: number, stage: 'quiz' | 'results') {
+  if (stage === 'results') return focus === 100 ? 1 : 0
+  return Math.max(0, 1 - Math.abs(progress - focus) / 22)
 }
 
 function VantaClimbScene({ progress, stage }: VantaClimbSceneProps) {
@@ -108,33 +125,20 @@ function VantaClimbScene({ progress, stage }: VantaClimbSceneProps) {
       aria-hidden="true"
     >
       <div className="journey-art-layer">
-        <img
-          alt=""
-          className="journey-frame basecamp"
-          src={basecampScene}
-          style={{ '--frame-opacity': Math.max(0, 1 - clampedProgress / 46) } as CSSProperties}
-        />
-        <img
-          alt=""
-          className="journey-frame ridge"
-          src={ridgeScene}
-          style={
-            {
-              '--frame-opacity':
-                stage === 'results' ? 0 : Math.max(0, 1 - Math.abs(clampedProgress - 50) / 42),
-            } as CSSProperties
-          }
-        />
-        <img
-          alt=""
-          className="journey-frame summit"
-          src={summitScene}
-          style={
-            {
-              '--frame-opacity': stage === 'results' ? 1 : Math.max(0, (clampedProgress - 58) / 42),
-            } as CSSProperties
-          }
-        />
+        {journeyFrames.map((frame, index) => (
+          <img
+            alt=""
+            className={`journey-frame ${frame.className}`}
+            key={frame.src}
+            src={frame.src}
+            style={
+              {
+                '--frame-depth': index,
+                '--frame-opacity': frameOpacity(clampedProgress, frame.focus, stage),
+              } as CSSProperties
+            }
+          />
+        ))}
       </div>
       <div className="climb-mountain-layer far" />
       <div className="climb-mountain-layer mid" />
