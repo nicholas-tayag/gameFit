@@ -25,7 +25,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -41,6 +40,8 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { AmbientSnowfield } from './components/gamefit/AmbientSnowfield'
+import { AnimatedNumber, LiftCard, MagneticButton, Reveal } from './components/gamefit/MotionPrimitives'
 import gamefitIcon from './assets/gamefit/gamefit-icon.png'
 import guideOrb from './assets/gamefit/guide-orb.png'
 import { gameCatalog } from './data/catalog'
@@ -263,6 +264,7 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(savedState.currentIndex)
   const [dislikedGameId, setDislikedGameId] = useState(savedState.dislikedGameId)
   const [resultLens, setResultLens] = useState<ResultLens>('profile')
+  const [showDeepResults, setShowDeepResults] = useState(false)
   const [topGames, setTopGames] = useState<string[]>(
     savedState.topGames.length === 3 ? savedState.topGames : defaultTopGames,
   )
@@ -345,6 +347,7 @@ function App() {
   if (stage === 'quiz') {
     return (
       <motion.main className="quiz-stage" {...pageMotion}>
+        <AmbientSnowfield variant="quiz" />
         <div className="quiz-chrome">
           <button className="brand-button" type="button" onClick={() => setStage('landing')}>
             <span>GF</span>
@@ -383,9 +386,18 @@ function App() {
             variant="outline"
           >
             {currentQuestion.options.map((option) => (
-              <ToggleGroupItem className="answer-toggle" value={option.id} key={option.id}>
+              <ToggleGroupItem className="answer-toggle" value={option.id} key={option.id} asChild>
+                <motion.button
+                  type="button"
+                  initial={{ opacity: 0, x: -14 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.32, ease: 'easeOut' }}
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.992 }}
+                >
                 <span>{option.label}</span>
                 <small>{option.description}</small>
+                </motion.button>
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
@@ -405,186 +417,75 @@ function App() {
   }
 
   if (stage === 'results') {
+    const topRecommendation = recommendations[0]
+
     return (
       <motion.main className="results-stage" {...pageMotion}>
+        <AmbientSnowfield variant="results" />
         <InlineUtility resetQuiz={resetQuiz} />
 
-        <motion.section className="results-hero enhanced-results-hero" variants={staggerContainer} initial="initial" animate="animate">
-          <div>
-            <motion.div variants={staggerItem}>
-              <Badge variant="secondary">Quiz complete</Badge>
-            </motion.div>
-            <motion.h1 variants={staggerItem}>
-              Your gameplay shape is {axisCopy[profile.dominant].label} + {axisCopy[profile.secondary].label}
-            </motion.h1>
-            <motion.p variants={staggerItem}>
-              This is not a skill grade. It is a fit read: what kind of pressure feels satisfying, what feedback
-              helps you learn, and where a game may start costing more patience than it gives back.
-            </motion.p>
-            <motion.div className="result-lens-control" variants={staggerItem}>
-              <ToggleGroup
-                type="single"
-                value={resultLens}
-                onValueChange={(value) => {
-                  if (value) setResultLens(value as ResultLens)
-                }}
-                variant="outline"
-              >
-                <ToggleGroupItem value="profile">Profile</ToggleGroupItem>
-                <ToggleGroupItem value="friction">Friction</ToggleGroupItem>
-                <ToggleGroupItem value="matches">Matches</ToggleGroupItem>
-              </ToggleGroup>
-            </motion.div>
-          </div>
-          <motion.div className="result-compass-shell" variants={staggerItem}>
+        <motion.section className="results-reveal" variants={staggerContainer} initial="initial" animate="animate">
+          <motion.div className="reveal-copy" variants={staggerItem}>
+            <span className="completion-kicker">Quiz complete</span>
+            <h1>
+              You lean {axisCopy[profile.dominant].label}, with a {axisCopy[profile.secondary].label} backup plan.
+            </h1>
+            <p>{profile.explanation}</p>
+            <div className="reveal-actions">
+              <MagneticButton>
+                <Button asChild size="lg">
+                  <a href="#recommendations">
+                    See game matches
+                    <ArrowRightIcon data-icon="inline-end" />
+                  </a>
+                </Button>
+              </MagneticButton>
+              <Button variant="outline" size="lg" onClick={() => setStage('quiz')}>
+                Retune answers
+              </Button>
+            </div>
+          </motion.div>
+
+          <motion.div className="reveal-profile-panel" variants={staggerItem}>
             <ProfileDiagram scores={profile.scores} />
-            <div className="compass-caption">
-              <CompassIcon />
-              <span>{resultRead.compassCaption}</span>
+            <div className="reveal-axis-stack">
+              <div className="confidence-pill">
+                <AnimatedNumber value={profile.confidence} suffix="%" />
+                confidence
+              </div>
+              <AxisBars scores={profile.scores} compact />
             </div>
           </motion.div>
         </motion.section>
 
-        <motion.section className="insight-dashboard" variants={staggerContainer} initial="initial" animate="animate">
-          <motion.div variants={staggerItem}>
-            <Card className="cognitive-card">
-              <CardHeader>
-                <CardTitle>
-                  <BrainIcon />
-                  Challenge-fit read
-                </CardTitle>
-                <CardDescription>{resultRead.lensCopy[resultLens]}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="loop-grid">
-                  {resultRead.axisLoops.map((loop) => (
-                    <div className={`loop-card ${loop.axis}`} key={loop.axis}>
-                      <span>{axisCopy[loop.axis].label}</span>
-                      <h3>{loop.title}</h3>
-                      <p>{loop.copy}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div variants={staggerItem}>
-            <Card className="motivation-card">
-              <CardHeader>
-                <CardTitle>
-                  <FlameIcon />
-                  Motivation signals
-                </CardTitle>
-                <CardDescription>Built from your quiz answers using autonomy, competence, and social pressure cues.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="motivation-meter-list">
-                  {resultRead.motivationSignals.map((signal) => (
-                    <MotivationMeter key={signal.label} {...signal} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </motion.section>
-
-        <motion.section className="practice-strip" variants={staggerContainer} initial="initial" animate="animate">
-          {resultRead.sessionPlans.map((plan) => (
-            <motion.div className="practice-card" variants={staggerItem} key={plan.label}>
-              <span>{plan.icon}</span>
-              <div>
-                <h3>{plan.label}</h3>
-                <p>{plan.copy}</p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.section>
-
-        <motion.section className="skill-fingerprint-section" variants={staggerContainer} initial="initial" animate="animate">
-          <motion.div variants={staggerItem}>
-            <Card className="skill-fingerprint-card">
-              <CardHeader>
-                <CardTitle>
-                  <CompassIcon />
-                  Skill fingerprint
-                </CardTitle>
-                <CardDescription>
-                  GameFit now breaks the three-axis profile into a finer skill taxonomy for recommendation scoring.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <SkillFingerprint scores={profile.skillScores} />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </motion.section>
-
-        <motion.section className="results-grid" variants={staggerContainer} initial="initial" animate="animate">
-          <motion.div variants={staggerItem}>
-            <Card className="profile-report">
-              <CardHeader>
-                <CardTitle>Current lean</CardTitle>
-                <CardDescription>{profile.explanation}</CardDescription>
-                <CardAction>
-                  <Badge>{profile.confidence}% confidence</Badge>
-                </CardAction>
-              </CardHeader>
-              <CardContent>
-                <AxisBars scores={profile.scores} />
-              </CardContent>
-              <CardFooter>
-                <p>
-                  Your strongest matches should explain both the appeal and the friction. A game can be great
-                  and still be wrong for your current taste, patience, or schedule.
-                </p>
-              </CardFooter>
-            </Card>
-          </motion.div>
-
-          <motion.div variants={staggerItem}>
-            <Card className="reflection-card">
-              <CardHeader>
-                <CardTitle>
-                  <ShieldAlertIcon />
-                  Bounce-off reflection
-                </CardTitle>
-                <CardDescription>Compare your profile against one game that looked interesting but missed.</CardDescription>
-              </CardHeader>
-              <CardContent className="reflection-content">
-                <Select value={dislikedGameId || 'none'} onValueChange={(value) => setDislikedGameId(value === 'none' ? '' : value)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a game" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="none">Skip for now</SelectItem>
-                      {gameCatalog
-                        .toSorted((a, b) => a.title.localeCompare(b.title))
-                        .map((game) => (
-                          <SelectItem value={game.id} key={game.id}>
-                            {game.title}
-                          </SelectItem>
-                        ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <p>{dislikedReflection ?? 'Choose a game to compare its friction against your profile.'}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+        <motion.section className="quick-read-section" variants={staggerContainer} initial="initial" animate="animate">
+          <Reveal className="quick-read-card primary">
+            <span>Pressure you like</span>
+            <h2>{axisResultCopy[profile.dominant].pressure}</h2>
+          </Reveal>
+          <Reveal className="quick-read-card" delay={0.08}>
+            <span>Good feedback loop</span>
+            <p>{axisResultCopy[profile.dominant].feedback}</p>
+          </Reveal>
+          <Reveal className="quick-read-card" delay={0.16}>
+            <span>Watch for friction</span>
+            <p>{dislikedReflection ?? axisResultCopy[profile.dominant].burnout}</p>
+          </Reveal>
         </motion.section>
 
         <section className="recommendations-section" id="recommendations" aria-label="Recommended games">
-          <div className="section-title">
+          <div className="recommendation-heading">
             <div>
-              <Badge variant="outline">Recommended next plays</Badge>
-              <h2>Games that fit your prospects</h2>
-              <p>Ranked by skill profile fit, preferred friction, and mismatch warnings.</p>
+              <h2>Your best next plays</h2>
+              <p>
+                Start with {topRecommendation?.game.title ?? 'the top match'} if you want the closest fit. Each card
+                explains the appeal and the possible friction before you spend money or time.
+              </p>
             </div>
-            <Button variant="outline" onClick={() => setStage('quiz')}>
-              Retune answers
-            </Button>
+            <div className="top-match-callout">
+              <AnimatedNumber value={topRecommendation?.matchScore ?? 0} suffix="%" />
+              top match
+            </div>
           </div>
 
           <motion.div className="recommendation-grid" variants={staggerContainer} initial="initial" animate="animate">
@@ -592,6 +493,150 @@ function App() {
               <RecommendationCard key={recommendation.game.id} recommendation={recommendation} rank={index + 1} />
             ))}
           </motion.div>
+        </section>
+
+        <section className="deep-results-section" aria-label="Deeper profile details">
+          <Button
+            className="deep-results-toggle"
+            variant="outline"
+            size="lg"
+            type="button"
+            onClick={() => setShowDeepResults((shown) => !shown)}
+          >
+            {showDeepResults ? 'Hide deeper read' : 'Show deeper read'}
+            <ArrowRightIcon data-icon="inline-end" />
+          </Button>
+
+          <AnimatePresence>
+            {showDeepResults ? (
+              <motion.div
+                className="deep-results-panel"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.24, ease: 'easeOut' }}
+              >
+                <motion.section className="insight-dashboard" variants={staggerContainer} initial="initial" animate="animate">
+                  <motion.div variants={staggerItem}>
+                    <Card className="cognitive-card">
+                      <CardHeader>
+                        <CardTitle>
+                          <BrainIcon />
+                          Challenge-fit read
+                        </CardTitle>
+                        <CardDescription>{resultRead.lensCopy[resultLens]}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="result-lens-control">
+                          <ToggleGroup
+                            type="single"
+                            value={resultLens}
+                            onValueChange={(value) => {
+                              if (value) setResultLens(value as ResultLens)
+                            }}
+                            variant="outline"
+                          >
+                            <ToggleGroupItem value="profile">Profile</ToggleGroupItem>
+                            <ToggleGroupItem value="friction">Friction</ToggleGroupItem>
+                            <ToggleGroupItem value="matches">Matches</ToggleGroupItem>
+                          </ToggleGroup>
+                        </div>
+                        <div className="loop-grid">
+                          {resultRead.axisLoops.map((loop) => (
+                            <div className={`loop-card ${loop.axis}`} key={loop.axis}>
+                              <span>{axisCopy[loop.axis].label}</span>
+                              <h3>{loop.title}</h3>
+                              <p>{loop.copy}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  <motion.div variants={staggerItem}>
+                    <Card className="motivation-card">
+                      <CardHeader>
+                        <CardTitle>
+                          <FlameIcon />
+                          Motivation signals
+                        </CardTitle>
+                        <CardDescription>Built from autonomy, competence, and social pressure cues.</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="motivation-meter-list">
+                          {resultRead.motivationSignals.map((signal) => (
+                            <MotivationMeter key={signal.label} {...signal} />
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </motion.section>
+
+                <motion.section className="practice-strip" variants={staggerContainer} initial="initial" animate="animate">
+                  {resultRead.sessionPlans.map((plan) => (
+                    <motion.div className="practice-card" variants={staggerItem} key={plan.label}>
+                      <span>{plan.icon}</span>
+                      <div>
+                        <h3>{plan.label}</h3>
+                        <p>{plan.copy}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.section>
+
+                <motion.section className="results-grid" variants={staggerContainer} initial="initial" animate="animate">
+                  <motion.div variants={staggerItem}>
+                    <Card className="skill-fingerprint-card">
+                      <CardHeader>
+                        <CardTitle>
+                          <CompassIcon />
+                          Skill fingerprint
+                        </CardTitle>
+                        <CardDescription>How your Micro, Meso, and Macro scores break into smaller skill signals.</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <SkillFingerprint scores={profile.skillScores} />
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  <motion.div variants={staggerItem}>
+                    <Card className="reflection-card">
+                      <CardHeader>
+                        <CardTitle>
+                          <ShieldAlertIcon />
+                          Bounce-off reflection
+                        </CardTitle>
+                        <CardDescription>Compare your profile against a game that looked interesting but missed.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="reflection-content">
+                        <Select value={dislikedGameId || 'none'} onValueChange={(value) => setDislikedGameId(value === 'none' ? '' : value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choose a game" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="none">Skip for now</SelectItem>
+                              {gameCatalog
+                                .toSorted((a, b) => a.title.localeCompare(b.title))
+                                .map((game) => (
+                                  <SelectItem value={game.id} key={game.id}>
+                                    {game.title}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <p>{dislikedReflection ?? 'Choose a game to compare its friction against your profile.'}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </motion.section>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </section>
       </motion.main>
     )
@@ -678,11 +723,13 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
   const topAxis = axes.toSorted((a, b) => recommendation.game.axes[b] - recommendation.game.axes[a])[0]
 
   return (
-    <motion.div variants={staggerItem} whileHover={{ y: -5 }} whileTap={{ scale: 0.99 }}>
+    <LiftCard variants={staggerItem}>
       <Card className="game-card">
         <div className="game-art" style={{ background: recommendation.game.color }}>
           <span className="game-rank">#{rank}</span>
-          <span className="match-score">{recommendation.matchScore}%</span>
+          <span className="match-score">
+            <AnimatedNumber value={recommendation.matchScore} suffix="%" />
+          </span>
         </div>
         <CardHeader>
           <CardTitle>{recommendation.game.title}</CardTitle>
@@ -727,7 +774,7 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </LiftCard>
   )
 }
 
@@ -772,6 +819,7 @@ function OnboardingStage({
 
   return (
     <motion.main className="onboarding-stage" {...pageMotion}>
+      <AmbientSnowfield variant="landing" />
       <div className="ice-mountain-scene" aria-hidden="true">
         <span className="ice-peak peak-one" />
         <span className="ice-peak peak-two" />
@@ -891,10 +939,12 @@ function OnboardingStage({
                 </div>
               </div>
 
-              <Button className="mock-primary-cta" size="lg" type="button" onClick={beginQuiz}>
-                Begin tuning
-                <ArrowRightIcon data-icon="inline-end" />
-              </Button>
+              <MagneticButton>
+                <Button className="mock-primary-cta" size="lg" type="button" onClick={beginQuiz}>
+                  Begin tuning
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Button>
+              </MagneticButton>
             </div>
 
             <div className="mock-guide-column" aria-live="polite">
