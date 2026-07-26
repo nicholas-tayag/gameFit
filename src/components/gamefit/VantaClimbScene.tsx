@@ -28,7 +28,7 @@ type VantaWindow = Window & {
 
 type VantaClimbSceneProps = {
   progress: number
-  stage: 'quiz' | 'results'
+  stage: 'landing' | 'quiz' | 'results'
 }
 
 const journeyFrames = [
@@ -40,7 +40,7 @@ const journeyFrames = [
   { className: 'summit', focus: 100, src: summitScene },
 ]
 
-function frameOpacity(progress: number, focus: number, stage: 'quiz' | 'results') {
+function frameOpacity(progress: number, focus: number, stage: 'landing' | 'quiz' | 'results') {
   if (stage === 'results') return focus === 100 ? 1 : 0
   return Math.max(0, 1 - Math.abs(progress - focus) / 22)
 }

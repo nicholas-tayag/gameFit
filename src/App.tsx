@@ -839,7 +839,7 @@ function OnboardingStage({
 
   return (
     <motion.main className="onboarding-stage" {...pageMotion}>
-      <AmbientSnowfield variant="landing" />
+      <VantaClimbScene progress={0} stage="landing" />
       <div className="ice-mountain-scene" aria-hidden="true">
         <span className="ice-peak peak-one" />
         <span className="ice-peak peak-two" />
