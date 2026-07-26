@@ -271,9 +271,9 @@ function App() {
   )
 
   const currentQuestion = quizQuestions[currentIndex]
-  const answeredCount = Object.keys(answers).length
-  const progress = Math.round((answeredCount / quizQuestions.length) * 100)
+  const selectedAnswer = answers[currentQuestion.id]
   const ascentProgress = Math.round((currentIndex / Math.max(1, quizQuestions.length - 1)) * 100)
+  const progress = Math.round(((currentIndex + (selectedAnswer ? 1 : 0)) / quizQuestions.length) * 100)
   const profile = useMemo(() => buildProfile(answers), [answers])
   const tasteSeedInsight = useMemo(() => buildTasteSeedInsight(topGames), [topGames])
   const recommendations = useMemo(() => recommendGames(profile, dislikedGameId, 8), [dislikedGameId, profile])
@@ -283,7 +283,6 @@ function App() {
     profile,
     recommendations,
   ])
-  const selectedAnswer = answers[currentQuestion.id]
   useEffect(() => {
     const state: SavedState = { answers, currentIndex, dislikedGameId, topGames, stage }
     window.localStorage.setItem(storageKey, JSON.stringify(state))
@@ -370,7 +369,15 @@ function App() {
           </Button>
         </div>
 
-        <section className="quiz-card-shell" aria-label="GameFit quiz question">
+        <motion.section
+          animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+          className="quiz-card-shell"
+          exit={{ opacity: 0, scale: 0.985, y: 16, filter: 'blur(8px)' }}
+          initial={{ opacity: 0, scale: 0.975, y: 28, filter: 'blur(12px)' }}
+          key={currentQuestion.id}
+          transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
+          aria-label="GameFit quiz question"
+        >
           <div className="quiz-question-copy">
             <p>Profile tuning</p>
             <h1>{currentQuestion.prompt}</h1>
@@ -413,7 +420,7 @@ function App() {
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </div>
-        </section>
+        </motion.section>
       </motion.main>
     )
   }

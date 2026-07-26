@@ -1,5 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import * as THREE from 'three'
+import basecampScene from '../../assets/gamefit/journey/basecamp.jpg'
+import ridgeScene from '../../assets/gamefit/journey/ridge.jpg'
+import summitScene from '../../assets/gamefit/journey/summit.jpg'
 
 type VantaEffect = {
   destroy: () => void
@@ -27,6 +31,7 @@ type VantaClimbSceneProps = {
 function VantaClimbScene({ progress, stage }: VantaClimbSceneProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const effectRef = useRef<VantaEffect | null>(null)
+  const [isFlying, setIsFlying] = useState(false)
   const clampedProgress = Math.min(100, Math.max(0, progress))
   const reducedMotion = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -88,13 +93,49 @@ function VantaClimbScene({ progress, stage }: VantaClimbSceneProps) {
     })
   }, [clampedProgress, stage])
 
+  useEffect(() => {
+    if (reducedMotion) return
+    setIsFlying(true)
+    const timeout = window.setTimeout(() => setIsFlying(false), 860)
+    return () => window.clearTimeout(timeout)
+  }, [clampedProgress, reducedMotion, stage])
+
   return (
     <div
-      className={`vanta-climb-scene ${stage}`}
+      className={`vanta-climb-scene ${stage}${isFlying ? ' is-flying' : ''}`}
       ref={rootRef}
-      style={{ '--climb-progress': clampedProgress } as React.CSSProperties}
+      style={{ '--climb-progress': clampedProgress } as CSSProperties}
       aria-hidden="true"
     >
+      <div className="journey-art-layer">
+        <img
+          alt=""
+          className="journey-frame basecamp"
+          src={basecampScene}
+          style={{ '--frame-opacity': Math.max(0, 1 - clampedProgress / 46) } as CSSProperties}
+        />
+        <img
+          alt=""
+          className="journey-frame ridge"
+          src={ridgeScene}
+          style={
+            {
+              '--frame-opacity':
+                stage === 'results' ? 0 : Math.max(0, 1 - Math.abs(clampedProgress - 50) / 42),
+            } as CSSProperties
+          }
+        />
+        <img
+          alt=""
+          className="journey-frame summit"
+          src={summitScene}
+          style={
+            {
+              '--frame-opacity': stage === 'results' ? 1 : Math.max(0, (clampedProgress - 58) / 42),
+            } as CSSProperties
+          }
+        />
+      </div>
       <div className="climb-mountain-layer far" />
       <div className="climb-mountain-layer mid" />
       <div className="climb-route">
@@ -102,12 +143,13 @@ function VantaClimbScene({ progress, stage }: VantaClimbSceneProps) {
           <span
             className={index <= Math.round((clampedProgress / 100) * 7) ? 'reached' : ''}
             key={index}
-            style={{ '--checkpoint-index': index } as React.CSSProperties}
+            style={{ '--checkpoint-index': index } as CSSProperties}
           />
         ))}
       </div>
       <div className="climb-summit-glow" />
       {stage === 'results' ? <div className="summit-peak-reveal" /> : null}
+      <div className="journey-speed-lines" />
       <div className="vanta-climb-scrim" />
     </div>
   )
