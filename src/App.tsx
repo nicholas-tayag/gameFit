@@ -150,7 +150,6 @@ const scorePath = (scores: AxisScores) => {
 
 const sourceVideoUrl = 'https://www.youtube.com/watch?v=NgHvdCcmQ4o'
 const sourceVideoTitle = "Once you see this, You'll see Competitive Games Differently"
-const sourceCreator = 'Surnex'
 
 const pageMotion = {
   initial: { opacity: 0, y: 18 },
@@ -1108,13 +1107,49 @@ function OnboardingStage({
           </CardContent>
         </Card>
 
-        <a className="bottom-source-link" href={sourceVideoUrl} target="_blank" rel="noreferrer">
-          <PlayIcon />
-          Source: {sourceCreator} -- “{sourceVideoTitle}”
-          <ExternalLinkIcon />
-        </a>
+        <AxisScrollStory />
       </section>
     </motion.main>
+  )
+}
+
+function AxisScrollStory() {
+  const axisExamples: Record<Axis, string[]> = {
+    micro: ['aim', 'movement', 'timing', 'parries', 'clean inputs'],
+    meso: ['positioning', 'adaptation', 'reads', 'risk swaps', 'tempo changes'],
+    macro: ['buildcraft', 'routing', 'economy', 'team plans', 'long-term tradeoffs'],
+  }
+
+  return (
+    <section className="axis-scroll-story" aria-label="Micro Meso Macro explanation" data-scroll-reveal>
+      <div className="axis-story-sticky">
+        <span>Skill map</span>
+        <h2>Three kinds of challenge, three kinds of fun.</h2>
+        <p>
+          GameFit treats skill as a fit question. You might love precision, adaptation, planning, or a mix of all three.
+        </p>
+      </div>
+
+      <div className="axis-story-track">
+        {axes.map((axis, index) => (
+          <article className={`axis-story-card ${axis}`} data-scroll-card key={axis}>
+            <div className="axis-story-marker">
+              <small>0{index + 1}</small>
+              <strong>{axisCopy[axis].label}</strong>
+            </div>
+            <div>
+              <h3>{axisCopy[axis].short}</h3>
+              <p>{axisCopy[axis].description}</p>
+              <div className="axis-example-strip">
+                {axisExamples[axis].map((example) => (
+                  <span key={example}>{example}</span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   )
 }
 
