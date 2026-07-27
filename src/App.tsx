@@ -823,7 +823,7 @@ function OnboardingStage({
         .includes(normalizedSearch)
     })
     .toSorted((a, b) => a.title.localeCompare(b.title))
-    .slice(0, normalizedSearch ? 8 : 6)
+    .slice(0, normalizedSearch ? 6 : 4)
 
   const chooseCatalogGame = (title: string) => {
     updateTopGame(targetSlot, title)
@@ -854,16 +854,14 @@ function OnboardingStage({
           </div>
 
           <div className="mock-hero-copy">
-            <h1>Find games by how they ask you to think.</h1>
-            <p>GameFit reads the pressure you enjoy: execution, adaptation, planning, and the skills underneath.</p>
+            <h1>Find games that fit how you play.</h1>
+            <p>A short climb-style quiz maps your Micro, Meso, and Macro preferences before recommending games.</p>
           </div>
 
           <div className="skill-ticker" aria-label="GameFit skill taxonomy preview">
-            {['aim', 'movement', 'timing', 'positioning', 'adaptation', 'strategy', 'resource planning', 'buildcraft'].map(
-              (skill) => (
-                <span key={skill}>{skill}</span>
-              ),
-            )}
+            {['Micro', 'Meso', 'Macro'].map((skill) => (
+              <span key={skill}>{skill}</span>
+            ))}
           </div>
 
           <a className="source-card" href={sourceVideoUrl} target="_blank" rel="noreferrer">
@@ -912,7 +910,7 @@ function OnboardingStage({
                 <div className="catalog-search-header">
                   <div>
                     <h3>Included library</h3>
-                    <p>Search the starter catalog and click a game to place it in a slot.</p>
+                    <p>Search the starter catalog or pick from the preview.</p>
                   </div>
                   <div className="slot-picker" aria-label="Choose which top game slot to fill">
                     {[0, 1, 2].map((slot) => (

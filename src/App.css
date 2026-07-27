@@ -4821,3 +4821,184 @@
     padding: 12px;
   }
 }
+
+/* Minimal hero pass. */
+.onboarding-shell {
+  grid-template-columns: minmax(300px, 0.78fr) minmax(380px, 0.72fr);
+  gap: clamp(42px, 8vw, 112px);
+  width: min(100%, 1120px);
+  padding-top: clamp(34px, 6vw, 72px);
+  padding-bottom: clamp(28px, 5vw, 56px);
+}
+
+.onboarding-intro {
+  gap: 22px;
+}
+
+.mock-brand {
+  padding: 5px 9px 5px 5px;
+  background: rgb(255 255 255 / 0.16);
+}
+
+.mock-brand img {
+  width: 34px;
+  height: 34px;
+}
+
+.mock-brand strong {
+  font-size: 1rem;
+}
+
+.mock-brand strong::after {
+  color: rgb(8 17 31 / 0.48);
+  font-size: 0.68rem;
+}
+
+.mock-hero-copy {
+  gap: 14px;
+}
+
+.mock-hero-copy h1 {
+  max-width: 540px;
+  font-size: clamp(3.35rem, 6vw, 5.65rem);
+  line-height: 0.9;
+}
+
+.mock-hero-copy p {
+  max-width: 430px;
+  color: rgb(8 17 31 / 0.68);
+  font-size: 1rem;
+}
+
+.skill-ticker {
+  gap: 7px;
+  max-width: 300px;
+}
+
+.skill-ticker span {
+  padding: 6px 10px;
+  background: rgb(255 255 255 / 0.16);
+  border-color: rgb(255 255 255 / 0.28);
+  color: rgb(8 17 31 / 0.64);
+  font-size: 0.72rem;
+  text-transform: none;
+}
+
+.source-card {
+  max-width: 300px;
+  min-height: 54px;
+  grid-template-columns: 28px 1fr 14px;
+  padding: 9px 11px;
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+}
+
+.source-card span {
+  width: 28px;
+  height: 28px;
+}
+
+.source-card b {
+  font-size: 0.82rem;
+}
+
+.source-card small {
+  display: none;
+}
+
+.mock-onboarding-card {
+  align-self: center;
+  background:
+    radial-gradient(ellipse at 50% 2%, rgb(255 255 255 / 0.2), transparent 42%),
+    rgb(255 255 255 / 0.08);
+}
+
+.mock-onboarding-card [data-slot='card-content'] {
+  padding: clamp(16px, 2.4vw, 24px);
+}
+
+.mock-panel-title h2 {
+  font-size: 1.18rem;
+}
+
+.mock-panel-title p {
+  max-width: 330px;
+  font-size: 0.94rem;
+}
+
+.game-seed-row {
+  min-height: 54px;
+}
+
+.catalog-search-panel {
+  padding: 12px;
+}
+
+.catalog-search-header {
+  align-items: center;
+}
+
+.catalog-search-header h3 {
+  font-size: 0.98rem;
+}
+
+.catalog-search-header p {
+  max-width: 280px;
+  font-size: 0.82rem;
+}
+
+.catalog-search-box {
+  min-height: 42px;
+}
+
+.catalog-result-list {
+  max-height: 236px;
+}
+
+.catalog-result {
+  min-height: 46px;
+}
+
+.catalog-result small {
+  font-size: 0.78rem;
+}
+
+.mock-primary-cta {
+  min-height: 54px;
+  font-size: 1rem;
+}
+
+.bottom-source-link {
+  display: none;
+}
+
+@media (max-width: 1060px) {
+  .onboarding-shell {
+    grid-template-columns: 1fr;
+    width: min(100%, 760px);
+    gap: 24px;
+  }
+
+  .mock-hero-copy h1 {
+    max-width: 680px;
+  }
+}
+
+@media (max-width: 760px) {
+  .onboarding-shell {
+    padding-top: 20px;
+  }
+
+  .mock-hero-copy h1 {
+    font-size: clamp(2.9rem, 12vw, 4.15rem);
+  }
+
+  .source-card {
+    max-width: 100%;
+  }
+
+  .mock-onboarding-card [data-slot='card-content'] {
+    padding: 18px 12px 16px;
+  }
+}
