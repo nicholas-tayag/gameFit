@@ -1000,48 +1000,6 @@ function OnboardingStage({
           </CardContent>
         </Card>
 
-        <section className="next-rail" aria-label="What happens next">
-          <div className="next-copy">
-            <h2>What happens next</h2>
-            <p>A quick quiz, your profile, then game matches that fit you.</p>
-          </div>
-          <div className="next-step quiz-step">
-            <span>01</span>
-            <div>
-              <h3>The quiz</h3>
-              <p>Answer how you think, decide, and adapt.</p>
-            </div>
-            <div className="mini-question" aria-hidden="true">
-              <small>When the game gets intense, you...</small>
-              <b>Look for a smarter angle</b>
-              <i />
-            </div>
-          </div>
-          <div className="next-step profile-step">
-            <span>02</span>
-            <div>
-              <h3>Your profile</h3>
-              <p>See your Micro, Meso, Macro skills map.</p>
-            </div>
-            <ProfileDiagram scores={insight.scores} />
-          </div>
-          <div className="next-step matches-step">
-            <span>03</span>
-            <div>
-              <h3>Game matches</h3>
-              <p>Discover games that match how you think and play.</p>
-            </div>
-            <div className="mini-match-list" aria-hidden="true">
-              {['XCOM 2', 'Slay the Spire', 'Hollow Knight'].map((title, index) => (
-                <div key={title}>
-                  <b>{title}</b>
-                  <small>{[92, 86, 78][index]}</small>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <a className="bottom-source-link" href={sourceVideoUrl} target="_blank" rel="noreferrer">
           <PlayIcon />
           Source: {sourceCreator} -- “{sourceVideoTitle}”

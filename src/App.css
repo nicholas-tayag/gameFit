@@ -4383,3 +4383,441 @@
     display: none;
   }
 }
+
+/* Seamless pass: reduce framed UI and let the mountain scene carry the app. */
+:root {
+  --gf-mist-surface: rgb(255 255 255 / 0.26);
+  --gf-mist-surface-strong: rgb(255 255 255 / 0.42);
+  --gf-mist-line: rgb(255 255 255 / 0.2);
+  --gf-mist-line-strong: rgb(255 255 255 / 0.38);
+  --gf-ink-soft: rgb(8 17 31 / 0.72);
+}
+
+.onboarding-stage,
+.quiz-stage,
+.results-stage {
+  background: #dcefff;
+}
+
+.onboarding-shell {
+  grid-template-columns: minmax(260px, 0.78fr) minmax(420px, 0.92fr);
+  gap: clamp(28px, 6vw, 78px);
+}
+
+.mock-brand,
+.source-card,
+.bottom-source-link,
+.quiz-chrome,
+.inline-utility {
+  background: rgb(255 255 255 / 0.18);
+  border: 1px solid var(--gf-mist-line);
+  box-shadow: none;
+  backdrop-filter: blur(8px) saturate(1.02);
+}
+
+.mock-onboarding-card,
+.catalog-search-panel,
+.game-seed-row,
+.catalog-search-box,
+.catalog-result,
+.quiz-card-shell,
+.answer-toggle,
+.results-reveal,
+.reveal-profile-panel,
+.quick-read-card,
+.top-match-callout,
+.game-card,
+.cognitive-card,
+.motivation-card,
+.skill-fingerprint-card,
+.reflection-card,
+.practice-card,
+.loop-card,
+.skill-cluster,
+.profile-diagram,
+.confidence-pill,
+.deep-results-toggle,
+.result-lens-control [data-slot='toggle-group'] {
+  background: var(--gf-mist-surface);
+  border-color: var(--gf-mist-line);
+  box-shadow: none;
+  backdrop-filter: blur(8px) saturate(1.02);
+}
+
+.mock-onboarding-card,
+.reveal-profile-panel,
+.game-card,
+.cognitive-card,
+.motivation-card,
+.skill-fingerprint-card,
+.reflection-card,
+.profile-diagram {
+  border-radius: 24px;
+}
+
+.catalog-search-panel,
+.quick-read-card,
+.practice-card,
+.loop-card,
+.skill-cluster,
+.top-match-callout,
+.confidence-pill,
+.deep-results-toggle {
+  border-radius: 16px;
+}
+
+.mock-onboarding-card {
+  min-height: 0;
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.34), rgb(255 255 255 / 0.12)),
+    transparent;
+}
+
+.mock-onboarding-card [data-slot='card-content'] {
+  gap: 22px;
+}
+
+.mock-guide-column {
+  display: none;
+}
+
+.mock-games-column,
+.catalog-result-list,
+.answer-toggle-group,
+.game-card-content {
+  gap: 10px;
+}
+
+.mock-panel-title p::after {
+  content: '';
+}
+
+.game-seed-row {
+  min-height: 60px;
+  padding: 6px 8px;
+  background: rgb(255 255 255 / 0.2);
+}
+
+.seed-number {
+  background: rgb(255 255 255 / 0.28);
+  border-color: transparent;
+}
+
+.game-seed-row [data-slot='input'],
+.catalog-search-box [data-slot='input'] {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.game-seed-row [data-slot='input']:focus-visible,
+.catalog-search-box [data-slot='input']:focus-visible {
+  background: rgb(255 255 255 / 0.24);
+  border-color: var(--gf-mist-line-strong);
+  box-shadow: 0 0 0 3px rgb(8 17 31 / 0.08);
+}
+
+.catalog-search-panel {
+  background: rgb(255 255 255 / 0.18);
+}
+
+.catalog-result {
+  min-height: 52px;
+  background: rgb(255 255 255 / 0.18);
+}
+
+.catalog-result b,
+.game-meta [data-slot='badge'] {
+  background: rgb(255 255 255 / 0.2);
+  border-color: transparent;
+}
+
+.mock-primary-cta,
+.quiz-footer [data-slot='button'],
+.reveal-actions [data-slot='button'] {
+  box-shadow: none;
+}
+
+.mock-primary-cta:hover,
+.reveal-actions [data-slot='button']:hover,
+.deep-results-toggle:hover,
+.quick-read-card:hover,
+.reveal-profile-panel:hover,
+.top-match-callout:hover,
+.catalog-result:hover,
+.game-seed-row:hover,
+.source-card:hover,
+.game-card:hover {
+  background: var(--gf-mist-surface-strong);
+  border-color: var(--gf-mist-line-strong);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.quiz-stage {
+  align-content: center;
+}
+
+.quiz-chrome {
+  width: min(980px, calc(100vw - 32px));
+  margin: 18px auto 0;
+  border-radius: 999px;
+}
+
+.quiz-card-shell {
+  width: min(760px, calc(100vw - 40px));
+  min-height: min(560px, calc(100svh - 150px));
+  margin: 18px auto 34px;
+  padding: clamp(18px, 4vw, 42px);
+  background:
+    radial-gradient(ellipse at 50% 26%, rgb(255 255 255 / 0.34), transparent 62%),
+    rgb(255 255 255 / 0.12);
+  border-color: transparent;
+  border-radius: 34px;
+}
+
+.quiz-question-copy p,
+.completion-kicker,
+.quick-read-card span,
+.reason-block h3 {
+  color: rgb(8 17 31 / 0.58);
+  letter-spacing: 0.03em;
+}
+
+.quiz-question-copy span,
+.reveal-copy p,
+.quick-read-card p,
+.recommendation-heading p,
+.reason-block p,
+.axis-row span {
+  color: var(--gf-ink-soft);
+}
+
+.answer-toggle {
+  min-height: 76px;
+  padding: 14px 16px;
+  background: rgb(255 255 255 / 0.12);
+  border-color: transparent;
+  border-radius: 18px;
+}
+
+.answer-toggle::before,
+.game-card::after {
+  display: none;
+}
+
+.answer-toggle[data-state='on'] {
+  background:
+    linear-gradient(90deg, rgb(125 211 252 / 0.2), rgb(255 255 255 / 0.18)),
+    rgb(255 255 255 / 0.24);
+  border-color: rgb(255 255 255 / 0.44);
+}
+
+.results-reveal {
+  min-height: calc(100svh - 86px);
+}
+
+.reveal-profile-panel {
+  background:
+    radial-gradient(circle at 50% 18%, rgb(255 255 255 / 0.34), transparent 42%),
+    rgb(255 255 255 / 0.16);
+}
+
+.profile-diagram {
+  background: radial-gradient(circle, hsl(var(--gf-meso) / 0.12), transparent 62%);
+  border-color: transparent;
+}
+
+.quick-read-card {
+  min-height: 128px;
+  background: rgb(255 255 255 / 0.18);
+}
+
+.game-card {
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.18);
+  border-color: transparent;
+}
+
+.game-art {
+  min-height: 126px;
+  margin: 10px 10px 0;
+  border-radius: 18px;
+  opacity: 0.92;
+}
+
+.game-card [data-slot='card-header'],
+.game-card [data-slot='card-content'] {
+  padding-inline: 18px;
+}
+
+.game-card [data-slot='separator'] {
+  opacity: 0.32;
+}
+
+.match-meter {
+  background: rgb(255 255 255 / 0.22);
+  border-color: transparent;
+}
+
+.deep-results-section {
+  padding-top: 4px;
+}
+
+.deep-results-toggle {
+  background: rgb(255 255 255 / 0.18);
+}
+
+.inline-utility {
+  width: fit-content;
+}
+
+@media (max-width: 760px) {
+  .onboarding-shell {
+    gap: 18px;
+    padding: 22px 16px 26px;
+  }
+
+  .mock-onboarding-card [data-slot='card-content'] {
+    padding: 22px 14px 18px;
+  }
+
+  .quiz-chrome {
+    width: calc(100vw - 24px);
+    border-radius: 22px;
+  }
+
+  .quiz-card-shell {
+    width: calc(100vw - 24px);
+    padding: 16px 14px;
+    border-radius: 24px;
+  }
+
+  .answer-toggle {
+    min-height: 84px;
+  }
+
+  .reveal-profile-panel {
+    border-radius: 22px;
+  }
+}
+
+/* Second seamless pass after visual QA. */
+.results-stage {
+  background: transparent;
+}
+
+.results-reveal,
+.recommendations-section,
+.quick-read-section,
+.deep-results-section {
+  background: transparent;
+}
+
+.results-reveal {
+  border-color: transparent;
+  backdrop-filter: none;
+}
+
+.mock-onboarding-card {
+  background:
+    radial-gradient(ellipse at 50% 8%, rgb(255 255 255 / 0.28), transparent 46%),
+    rgb(255 255 255 / 0.12);
+  border-color: rgb(255 255 255 / 0.16);
+}
+
+.mock-onboarding-card [data-slot='card-content'] {
+  padding: clamp(18px, 3vw, 30px);
+}
+
+.catalog-search-panel {
+  background: rgb(255 255 255 / 0.1);
+  border-color: transparent;
+}
+
+.catalog-result {
+  background: transparent;
+  border-color: transparent;
+}
+
+.catalog-result:hover {
+  background: rgb(255 255 255 / 0.22);
+}
+
+.quiz-card-shell {
+  background:
+    radial-gradient(ellipse at 50% 24%, rgb(255 255 255 / 0.24), transparent 58%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04));
+  backdrop-filter: blur(4px);
+}
+
+.answer-toggle {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.answer-toggle:hover {
+  background: rgb(255 255 255 / 0.18);
+}
+
+.reveal-profile-panel {
+  background:
+    radial-gradient(circle at 42% 12%, rgb(255 255 255 / 0.3), transparent 44%),
+    rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.16);
+}
+
+.reveal-profile-panel .profile-diagram,
+.confidence-pill {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.quick-read-card,
+.top-match-callout {
+  background: rgb(255 255 255 / 0.12);
+  border-color: transparent;
+}
+
+.game-card {
+  background: rgb(255 255 255 / 0.1);
+  border-color: transparent;
+  backdrop-filter: blur(6px) saturate(1.02);
+}
+
+.game-card:hover {
+  background: rgb(255 255 255 / 0.22);
+}
+
+.game-art {
+  min-height: 104px;
+  opacity: 0.82;
+}
+
+.game-rank,
+.match-score {
+  background: rgb(8 17 31 / 0.48);
+  border-color: rgb(255 255 255 / 0.18);
+}
+
+.game-meta [data-slot='badge'],
+.game-card [data-slot='badge'] {
+  background: rgb(255 255 255 / 0.12);
+  border-color: transparent;
+}
+
+.game-card [data-slot='separator'] {
+  display: none;
+}
+
+.reason-block {
+  padding-top: 2px;
+}
+
+@media (max-width: 760px) {
+  .mock-onboarding-card {
+    background: rgb(255 255 255 / 0.16);
+  }
+
+  .catalog-search-panel {
+    padding: 12px;
+  }
+}
