@@ -162,6 +162,102 @@ const pageMotion = {
 const hasTag = (profile: SkillProfile, tags: FrictionTag[]) =>
   tags.some((tag) => profile.likedTags.includes(tag) || profile.dislikedTags.includes(tag))
 
+function useGsapScrollMotion(stage: AppStage) {
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) return
+
+    let context: { revert: () => void } | undefined
+    let cancelled = false
+
+    async function mountScrollMotion() {
+      const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ])
+      if (cancelled) return
+
+      gsap.registerPlugin(ScrollTrigger)
+
+      context = gsap.context(() => {
+        gsap.set(document.documentElement, { '--scroll-progress': 0 })
+        gsap.to(document.documentElement, {
+          '--scroll-progress': 1,
+          ease: 'none',
+          scrollTrigger: {
+            end: 'bottom bottom',
+            scrub: 0.35,
+            start: 'top top',
+            trigger: document.body,
+          },
+        })
+
+        gsap.utils.toArray<HTMLElement>('[data-scroll-reveal]').forEach((element) => {
+          gsap.fromTo(
+            element,
+            { autoAlpha: 0, filter: 'blur(10px)', y: 34 },
+            {
+              autoAlpha: 1,
+              duration: 0.8,
+              ease: 'power3.out',
+              filter: 'blur(0px)',
+              scrollTrigger: {
+                start: 'top 88%',
+                toggleActions: 'play none none reverse',
+                trigger: element,
+              },
+              y: 0,
+            },
+          )
+        })
+
+        gsap.utils.toArray<HTMLElement>('[data-scroll-parallax]').forEach((element) => {
+          const depth = Number(element.dataset.scrollParallax || 8)
+          gsap.to(element, {
+            ease: 'none',
+            scrollTrigger: {
+              end: 'bottom top',
+              scrub: 0.6,
+              start: 'top bottom',
+              trigger: element,
+            },
+            yPercent: -depth,
+          })
+        })
+
+        gsap.utils.toArray<HTMLElement>('[data-scroll-card]').forEach((element, index) => {
+          gsap.fromTo(
+            element,
+            { autoAlpha: 0, scale: 0.965, y: 28 },
+            {
+              autoAlpha: 1,
+              delay: Math.min(index * 0.035, 0.18),
+              duration: 0.64,
+              ease: 'power2.out',
+              scale: 1,
+              scrollTrigger: {
+                start: 'top 92%',
+                toggleActions: 'play none none reverse',
+                trigger: element,
+              },
+              y: 0,
+            },
+          )
+        })
+
+        ScrollTrigger.refresh()
+      }, document.body)
+    }
+
+    void mountScrollMotion()
+
+    return () => {
+      cancelled = true
+      context?.revert()
+    }
+  }, [stage])
+}
+
 const scoreLabel = (score: number) => {
   if (score >= 78) return 'Strong signal'
   if (score >= 58) return 'Active signal'
@@ -283,6 +379,9 @@ function App() {
     profile,
     recommendations,
   ])
+
+  useGsapScrollMotion(stage)
+
   useEffect(() => {
     const state: SavedState = { answers, currentIndex, dislikedGameId, topGames, stage }
     window.localStorage.setItem(storageKey, JSON.stringify(state))
@@ -432,10 +531,11 @@ function App() {
       <motion.main className="results-stage" {...pageMotion}>
         <VantaClimbScene progress={100} stage="results" />
         <AmbientSnowfield progress={100} variant="results" />
+        <ScrollAscentIndicator />
         <InlineUtility resetQuiz={resetQuiz} />
 
         <motion.section className="results-reveal" variants={staggerContainer} initial="initial" animate="animate">
-          <motion.div className="reveal-copy" variants={staggerItem}>
+          <motion.div className="reveal-copy" variants={staggerItem} data-scroll-parallax="5">
             <span className="completion-kicker">Quiz complete</span>
             <h1>
               You lean {axisCopy[profile.dominant].label}, with a {axisCopy[profile.secondary].label} backup plan.
@@ -456,7 +556,7 @@ function App() {
             </div>
           </motion.div>
 
-          <motion.div className="reveal-profile-panel" variants={staggerItem}>
+          <motion.div className="reveal-profile-panel" variants={staggerItem} data-scroll-parallax="9">
             <ProfileDiagram scores={profile.scores} />
             <div className="reveal-axis-stack">
               <div className="confidence-pill">
@@ -468,7 +568,7 @@ function App() {
           </motion.div>
         </motion.section>
 
-        <motion.section className="quick-read-section" variants={staggerContainer} initial="initial" animate="animate">
+        <motion.section className="quick-read-section" variants={staggerContainer} initial="initial" animate="animate" data-scroll-reveal>
           <Reveal className="quick-read-card primary">
             <span>Pressure you like</span>
             <h2>{axisResultCopy[profile.dominant].pressure}</h2>
@@ -483,7 +583,7 @@ function App() {
           </Reveal>
         </motion.section>
 
-        <section className="recommendations-section" id="recommendations" aria-label="Recommended games">
+        <section className="recommendations-section" id="recommendations" aria-label="Recommended games" data-scroll-reveal>
           <div className="recommendation-heading">
             <div>
               <h2>Your best next plays</h2>
@@ -505,7 +605,7 @@ function App() {
           </motion.div>
         </section>
 
-        <section className="deep-results-section" aria-label="Deeper profile details">
+        <section className="deep-results-section" aria-label="Deeper profile details" data-scroll-reveal>
           <Button
             className="deep-results-toggle"
             variant="outline"
@@ -687,6 +787,15 @@ function InlineUtility({ resetQuiz }: { resetQuiz: () => void }) {
   )
 }
 
+function ScrollAscentIndicator() {
+  return (
+    <div className="scroll-ascent-indicator" aria-hidden="true">
+      <span />
+      <i />
+    </div>
+  )
+}
+
 function MotivationMeter({ label, value, copy }: { label: string; value: number; copy: string }) {
   return (
     <div className="motivation-meter">
@@ -733,7 +842,7 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
   const topAxis = axes.toSorted((a, b) => recommendation.game.axes[b] - recommendation.game.axes[a])[0]
 
   return (
-    <LiftCard variants={staggerItem}>
+    <LiftCard variants={staggerItem} data-scroll-card>
       <Card className="game-card" data-axis={topAxis}>
         <div className="game-card-constellation" aria-hidden="true">
           {axes.map((axis) => (
@@ -840,6 +949,7 @@ function OnboardingStage({
   return (
     <motion.main className="onboarding-stage" {...pageMotion}>
       <VantaClimbScene progress={0} stage="landing" />
+      <ScrollAscentIndicator />
       <div className="ice-mountain-scene" aria-hidden="true">
         <span className="ice-peak peak-one" />
         <span className="ice-peak peak-two" />
@@ -847,7 +957,7 @@ function OnboardingStage({
       </div>
 
       <section className="onboarding-shell" aria-label="GameFit top games onboarding">
-        <div className="onboarding-intro">
+        <div className="onboarding-intro" data-scroll-parallax="6">
           <div className="mock-brand" aria-label="GameFit">
             <img src={gamefitIcon} alt="" />
             <strong>GameFit</strong>
@@ -874,7 +984,7 @@ function OnboardingStage({
           </a>
         </div>
 
-        <Card className="mock-onboarding-card">
+        <Card className="mock-onboarding-card" data-scroll-parallax="10">
           <CardContent>
             <div className="mock-games-column">
               <div className="mock-panel-title">

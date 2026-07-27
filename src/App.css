@@ -5405,3 +5405,78 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* GSAP + Vanta scroll layer. */
+:root {
+  --scroll-progress: 0;
+}
+
+.scroll-ascent-indicator {
+  position: fixed;
+  top: 20vh;
+  right: clamp(28px, 5vw, 72px);
+  z-index: 6;
+  width: 2px;
+  height: 30vh;
+  pointer-events: none;
+  background: rgb(255 255 255 / 0.2);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgb(8 17 31 / 0.04);
+  overflow: hidden;
+}
+
+.scroll-ascent-indicator span {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.94), rgb(125 211 252 / 0.72), rgb(8 17 31 / 0.42));
+  border-radius: inherit;
+  filter: drop-shadow(0 0 12px rgb(255 255 255 / 0.42));
+  transform: scaleY(var(--scroll-progress));
+  transform-origin: top;
+}
+
+.scroll-ascent-indicator i {
+  position: absolute;
+  top: calc((100% - 8px) * var(--scroll-progress));
+  left: 50%;
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: #f8fcff;
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgb(255 255 255 / 0.86);
+  transform: translateX(-50%);
+}
+
+[data-scroll-reveal],
+[data-scroll-card],
+[data-scroll-parallax] {
+  will-change: opacity, transform, filter;
+}
+
+.recommendation-grid [data-scroll-card]:nth-child(3n + 2) {
+  transform-origin: 50% 45%;
+}
+
+@media (max-width: 760px) {
+  .scroll-ascent-indicator {
+    top: auto;
+    right: 14px;
+    bottom: 18px;
+    height: 92px;
+    opacity: 0.74;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-ascent-indicator {
+    display: none;
+  }
+
+  [data-scroll-reveal],
+  [data-scroll-card],
+  [data-scroll-parallax] {
+    will-change: auto;
+  }
+}
