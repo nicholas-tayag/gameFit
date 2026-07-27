@@ -823,7 +823,7 @@ function OnboardingStage({
         .includes(normalizedSearch)
     })
     .toSorted((a, b) => a.title.localeCompare(b.title))
-    .slice(0, normalizedSearch ? 6 : 4)
+    .slice(0, normalizedSearch ? 6 : 3)
 
   const chooseCatalogGame = (title: string) => {
     updateTopGame(targetSlot, title)
@@ -878,8 +878,8 @@ function OnboardingStage({
           <CardContent>
             <div className="mock-games-column">
               <div className="mock-panel-title">
-                <h2>Your top 3 games</h2>
-                <p>Add the 3 games you've played and loved most.</p>
+                <h2>Start with three games you love</h2>
+                <p>These act as taste anchors before the climb begins.</p>
               </div>
 
               <div className="mock-game-list">
@@ -903,14 +903,14 @@ function OnboardingStage({
 
               <button className="add-game-button" type="button" onClick={focusGameInput}>
                 <PlusIcon />
-                Edit games
+                Focus next slot
               </button>
 
               <div className="catalog-search-panel">
                 <div className="catalog-search-header">
                   <div>
-                    <h3>Included library</h3>
-                    <p>Search the starter catalog or pick from the preview.</p>
+                    <h3>Game library</h3>
+                    <p>Pick a title to fill the active slot.</p>
                   </div>
                   <div className="slot-picker" aria-label="Choose which top game slot to fill">
                     {[0, 1, 2].map((slot) => (
@@ -1021,23 +1021,32 @@ function GameSeedRow({
 }) {
   const match = findTasteSeedGame(game)
   const title = game.trim() || defaultTopGames[index]
+  const topAxis = match ? axes.toSorted((a, b) => match.axes[b] - match.axes[a])[0] : null
 
   return (
-    <div className="game-seed-row">
-      <span className="seed-number">{index + 1}</span>
+    <div className="game-seed-row" style={{ '--seed-color': match?.color ?? '#175ec7' } as CSSProperties}>
+      <span className="seed-number">
+        <small>Slot</small>
+        {index + 1}
+      </span>
       <span className="seed-cover" style={{ '--seed-color': match?.color ?? '#175ec7' } as CSSProperties}>
         {gameInitials(title)}
       </span>
-      <Input
-        aria-label={`Game ${index + 1}`}
-        autoComplete="off"
-        id={`top-game-${index}`}
-        list="game-catalog-options"
-        value={game}
-        onChange={(event) => onChange(event.target.value)}
-        onFocus={(event) => event.currentTarget.select()}
-        placeholder={defaultTopGames[index]}
-      />
+      <label className="seed-input-shell">
+        <Input
+          aria-label={`Game ${index + 1}`}
+          autoComplete="off"
+          id={`top-game-${index}`}
+          list="game-catalog-options"
+          value={game}
+          onChange={(event) => onChange(event.target.value)}
+          onFocus={(event) => event.currentTarget.select()}
+          placeholder={defaultTopGames[index]}
+        />
+        <span>
+          {match ? `${axisCopy[topAxis ?? 'meso'].label} leaning · ${match.genres[0]} · ${match.sessionLength}` : 'Type a title or choose from the library'}
+        </span>
+      </label>
       <button aria-label={`Remove game ${index + 1}`} type="button" onClick={onClear}>
         <XIcon />
       </button>
