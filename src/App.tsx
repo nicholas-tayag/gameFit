@@ -587,8 +587,9 @@ function App() {
             <div>
               <h2>Your best next plays</h2>
               <p>
-                Start with {topRecommendation?.game.title ?? 'the top match'} if you want the closest fit. Each card
-                explains the appeal and the possible friction before you spend money or time.
+                Showing {recommendations.length} personalized matches. Start with{' '}
+                {topRecommendation?.game.title ?? 'the top match'} if you want the closest fit. Each card explains the
+                appeal and the possible friction before you spend money or time.
               </p>
             </div>
             <div className="top-match-callout">
