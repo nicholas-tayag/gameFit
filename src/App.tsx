@@ -55,7 +55,7 @@ import type { TasteSeedInsight } from './lib/tasteSeed'
 import type { Axis, AxisScores, FrictionTag, Recommendation, SkillProfile, SkillScores } from './types'
 import './App.css'
 
-type AppStage = 'landing' | 'taste-seed' | 'quiz' | 'results'
+type AppStage = 'landing' | 'quiz' | 'results'
 type ResultLens = 'profile' | 'friction' | 'matches'
 
 const storageKey = 'gamefit:v2'
@@ -434,18 +434,6 @@ function App() {
     setDislikedGameId('elden-ring')
     setTopGames(defaultTopGames)
     setStage('landing')
-  }
-
-  if (stage === 'taste-seed') {
-    return (
-      <OnboardingStage
-        beginQuiz={beginQuiz}
-        clearTopGame={clearTopGame}
-        insight={tasteSeedInsight}
-        topGames={topGames}
-        updateTopGame={updateTopGame}
-      />
-    )
   }
 
   if (stage === 'quiz') {

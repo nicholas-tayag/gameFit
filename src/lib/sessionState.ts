@@ -1,16 +1,17 @@
-export type PersistedGamefitStage = 'landing' | 'taste-seed' | 'quiz' | 'results'
+export type ActiveGamefitStage = 'landing' | 'quiz' | 'results'
+export type PersistedGamefitStage = ActiveGamefitStage | 'taste-seed'
 
-export interface PersistedGamefitState {
+export interface RestoredGamefitState {
   answers: Record<string, string>
   currentIndex: number
   dislikedGameId: string
   topGames: string[]
-  stage: PersistedGamefitStage
+  stage: ActiveGamefitStage
 }
 
 interface RestoreOptions {
   defaultDislikedGameId: string
-  defaultStage?: PersistedGamefitStage
+  defaultStage?: ActiveGamefitStage
   defaultTopGames: string[]
   quizLength: number
 }
@@ -18,9 +19,9 @@ interface RestoreOptions {
 const allowedStages = new Set<PersistedGamefitStage>(['landing', 'taste-seed', 'quiz', 'results'])
 
 export function restoreSavedState(
-  raw: Partial<PersistedGamefitState> | null | undefined,
+  raw: Partial<{ stage: PersistedGamefitStage } & RestoredGamefitState> | null | undefined,
   options: RestoreOptions,
-): PersistedGamefitState {
+): RestoredGamefitState {
   const fallbackStage = options.defaultStage ?? 'landing'
   const stage = normalizeStage(raw?.stage, fallbackStage)
   const maxIndex = Math.max(0, options.quizLength - 1)
