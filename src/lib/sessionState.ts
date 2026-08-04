@@ -9,6 +9,10 @@ export interface RestoredGamefitState {
   stage: ActiveGamefitStage
 }
 
+interface RawPersistedGamefitState extends Omit<RestoredGamefitState, 'stage'> {
+  stage: PersistedGamefitStage
+}
+
 interface RestoreOptions {
   defaultDislikedGameId: string
   defaultStage?: ActiveGamefitStage
@@ -19,7 +23,7 @@ interface RestoreOptions {
 const allowedStages = new Set<PersistedGamefitStage>(['landing', 'taste-seed', 'quiz', 'results'])
 
 export function restoreSavedState(
-  raw: Partial<{ stage: PersistedGamefitStage } & RestoredGamefitState> | null | undefined,
+  raw: Partial<RawPersistedGamefitState> | null | undefined,
   options: RestoreOptions,
 ): RestoredGamefitState {
   const fallbackStage = options.defaultStage ?? 'landing'

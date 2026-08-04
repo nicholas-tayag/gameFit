@@ -395,7 +395,13 @@ function App() {
     window.scrollTo({ top: 0 })
   }, [currentIndex, stage])
 
+  const resetResultsView = () => {
+    setResultLens('profile')
+    setShowDeepResults(false)
+  }
+
   const beginQuiz = () => {
+    resetResultsView()
     setStage('quiz')
     setCurrentIndex(0)
   }
@@ -429,6 +435,7 @@ function App() {
   }
 
   const resetQuiz = () => {
+    resetResultsView()
     setAnswers({})
     setCurrentIndex(0)
     setDislikedGameId('elden-ring')
@@ -542,7 +549,14 @@ function App() {
                   </a>
                 </Button>
               </MagneticButton>
-              <Button variant="outline" size="lg" onClick={() => setStage('quiz')}>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  resetResultsView()
+                  setStage('quiz')
+                }}
+              >
                 Retune answers
               </Button>
             </div>

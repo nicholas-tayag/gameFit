@@ -12,7 +12,7 @@ describe('restoreSavedState', () => {
     const state = restoreSavedState(
       {
         currentIndex: 999,
-        stage: 'taste-seed',
+        stage: 'taste-seed' as const,
         topGames: ['Hades', ' Rocket League ', ''],
       },
       defaults,
