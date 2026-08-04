@@ -29,4 +29,11 @@ describe('buildTasteSeedInsight', () => {
     expect(insight.unmatchedEntries).toEqual(['Some Future Indie'])
     expect(insight.scores).toEqual({ micro: 50, meso: 50, macro: 50 })
   })
+
+  it('deduplicates repeated seed entries before building the first read', () => {
+    const insight = buildTasteSeedInsight(['Hades', ' hades ', 'Rocket League', 'rocket league'])
+
+    expect(insight.entries).toEqual(['Hades', 'Rocket League'])
+    expect(insight.matchedGames.map((game) => game.id)).toEqual(['hades', 'rocket-league'])
+  })
 })

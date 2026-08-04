@@ -49,6 +49,18 @@ export interface TasteSeedInsight {
   detail: string
 }
 
+const uniqueEntries = (rawEntries: string[]) => {
+  const seen = new Set<string>()
+  return rawEntries
+    .map((entry) => entry.trim())
+    .filter((entry) => {
+      const key = normalizeTitle(entry)
+      if (!key || seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+}
+
 export const findTasteSeedGame = (entry: string): GameCatalogItem | undefined => {
   const normalized = normalizeTitle(entry)
   const compact = compactTitle(entry)
@@ -81,7 +93,7 @@ const averageAxes = (games: GameCatalogItem[]): AxisScores => {
 }
 
 export const buildTasteSeedInsight = (rawEntries: string[]): TasteSeedInsight => {
-  const entries = rawEntries.map((entry) => entry.trim()).filter(Boolean)
+  const entries = uniqueEntries(rawEntries)
   const matchedGames = entries
     .map((entry) => findTasteSeedGame(entry))
     .filter((game): game is GameCatalogItem => Boolean(game))
