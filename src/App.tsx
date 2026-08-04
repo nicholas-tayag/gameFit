@@ -49,6 +49,7 @@ import { gameCatalog } from './data/catalog'
 import { quizQuestions } from './data/quiz'
 import { skillCopy, skillTags } from './data/skillTaxonomy'
 import { buildProfile, describeDislikedGame, recommendGames } from './lib/recommendations'
+import { restoreSavedState } from './lib/sessionState'
 import { buildTasteSeedInsight, findTasteSeedGame } from './lib/tasteSeed'
 import type { TasteSeedInsight } from './lib/tasteSeed'
 import type { Axis, AxisScores, FrictionTag, Recommendation, SkillProfile, SkillScores } from './types'
@@ -131,8 +132,12 @@ const loadSavedState = (): SavedState => {
   try {
     const stored = window.localStorage.getItem(storageKey)
     if (!stored) return initialState
-    const parsed = JSON.parse(stored) as Partial<SavedState>
-    return { ...initialState, ...parsed, stage: parsed.stage ?? 'landing' }
+    return restoreSavedState(JSON.parse(stored) as Partial<SavedState>, {
+      defaultDislikedGameId: initialState.dislikedGameId,
+      defaultStage: initialState.stage,
+      defaultTopGames: initialState.topGames,
+      quizLength: quizQuestions.length,
+    })
   } catch {
     return initialState
   }
