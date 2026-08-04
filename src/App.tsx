@@ -49,6 +49,7 @@ import { gameCatalog } from './data/catalog'
 import { quizQuestions } from './data/quiz'
 import { skillCopy, skillTags } from './data/skillTaxonomy'
 import { buildProfile, describeDislikedGame, recommendGames } from './lib/recommendations'
+import { applyCatalogSelection, nextSeedSlot } from './lib/seedSlots'
 import { restoreSavedState } from './lib/sessionState'
 import { buildTasteSeedInsight, findTasteSeedGame } from './lib/tasteSeed'
 import type { TasteSeedInsight } from './lib/tasteSeed'
@@ -765,6 +766,7 @@ function App() {
         clearTopGame={clearTopGame}
         insight={tasteSeedInsight}
         key="landing"
+        replaceTopGames={setTopGames}
         topGames={topGames}
         updateTopGame={updateTopGame}
       />
@@ -917,12 +919,14 @@ function OnboardingStage({
   beginQuiz,
   clearTopGame,
   insight,
+  replaceTopGames,
   topGames,
   updateTopGame,
 }: {
   beginQuiz: () => void
   clearTopGame: (index: number) => void
   insight: TasteSeedInsight
+  replaceTopGames: (games: string[]) => void
   topGames: string[]
   updateTopGame: (index: number, value: string) => void
 }) {
@@ -941,9 +945,9 @@ function OnboardingStage({
     .slice(0, normalizedSearch ? 6 : 3)
 
   const chooseCatalogGame = (title: string) => {
-    updateTopGame(targetSlot, title)
-    const nextEmpty = topGames.findIndex((game, index) => index !== targetSlot && game.trim().length === 0)
-    setTargetSlot(nextEmpty === -1 ? Math.min(targetSlot + 1, 2) : nextEmpty)
+    const nextGames = applyCatalogSelection(topGames, targetSlot, title)
+    replaceTopGames(nextGames)
+    setTargetSlot(nextSeedSlot(nextGames, targetSlot))
   }
 
   const focusGameInput = () => {
