@@ -42,6 +42,14 @@ describe('recommendGames', () => {
     expect(recommendations[0].skillReasons[0]).toContain(':')
   })
 
+  it('clamps invalid recommendation limits to a safe range', () => {
+    const answers = Object.fromEntries(quizQuestions.map((question) => [question.id, question.options[0].id]))
+    const profile = buildProfile(answers)
+
+    expect(recommendGames(profile, undefined, -3)).toEqual([])
+    expect(recommendGames(profile, undefined, 2.8)).toHaveLength(2)
+  })
+
   it('excludes the disliked game and surfaces mismatch language', () => {
     const answers = Object.fromEntries(quizQuestions.map((question) => [question.id, question.options[1].id]))
     const profile = buildProfile(answers)

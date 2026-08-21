@@ -92,6 +92,7 @@ export const recommendGames = (
   dislikedGameId?: string,
   limit = 8,
 ): Recommendation[] => {
+  const safeLimit = Math.max(0, Math.trunc(limit))
   const disliked = new Set(profile.dislikedTags)
   const dislikedGame = gameCatalog.find((game) => game.id === dislikedGameId)
   const dislikedGameTags = new Set(dislikedGame?.frictionTags ?? [])
@@ -128,7 +129,7 @@ export const recommendGames = (
       }
     })
     .toSorted((a, b) => b.matchScore - a.matchScore || a.game.title.localeCompare(b.game.title))
-    .slice(0, limit)
+    .slice(0, safeLimit)
 }
 
 export const describeDislikedGame = (profile: SkillProfile, dislikedGameId?: string) => {
