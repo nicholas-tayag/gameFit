@@ -21,6 +21,15 @@ describe('normalizeScores', () => {
 })
 
 describe('recommendGames', () => {
+  it('bases confidence on recognized quiz answers only', () => {
+    const profile = buildProfile({
+      [quizQuestions[0].id]: quizQuestions[0].options[0].id,
+      stray: quizQuestions[0].options[1].id,
+    })
+
+    expect(profile.confidence).toBe(34)
+  })
+
   it('returns ranked recommendations with visible reasons', () => {
     const answers = Object.fromEntries(quizQuestions.map((question) => [question.id, question.options[0].id]))
     const profile = buildProfile(answers)

@@ -62,7 +62,7 @@ export const buildProfile = (answers: Record<string, string>): SkillProfile => {
   const ordered = axes.toSorted((a, b) => scores[b] - scores[a])
   const dominant = ordered[0]
   const secondary = ordered[1]
-  const confidence = Math.min(99, Math.max(34, Math.round((Object.keys(answers).length / quizQuestions.length) * 82 + 12)))
+  const confidence = Math.min(99, Math.max(34, Math.round((selectedOptions.length / quizQuestions.length) * 82 + 12)))
 
   return {
     scores,
