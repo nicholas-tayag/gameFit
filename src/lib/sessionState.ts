@@ -33,10 +33,7 @@ export function restoreSavedState(
   return {
     answers: normalizeAnswers(raw?.answers),
     currentIndex: clampInteger(raw?.currentIndex, 0, maxIndex),
-    dislikedGameId:
-      typeof raw?.dislikedGameId === 'string' && raw.dislikedGameId.trim()
-        ? raw.dislikedGameId
-        : options.defaultDislikedGameId,
+    dislikedGameId: normalizeDislikedGameId(raw?.dislikedGameId, options.defaultDislikedGameId),
     topGames: normalizeTopGames(raw?.topGames, options.defaultTopGames),
     stage: stage === 'taste-seed' ? 'landing' : stage,
   }
@@ -47,7 +44,7 @@ function normalizeAnswers(value: unknown): Record<string, string> {
   return Object.fromEntries(
     Object.entries(value).filter(
       ([key, item]) => Boolean(key.trim()) && typeof item === 'string' && item.trim().length > 0,
-    ),
+    ).map(([key, item]) => [key.trim(), item.trim()]),
   )
 }
 
@@ -64,6 +61,12 @@ function normalizeTopGames(value: unknown, defaults: string[]): string[] {
     .map((item) => (typeof item === 'string' ? item.trim() : ''))
   while (trimmed.length < defaults.length) trimmed.push(defaults[trimmed.length] ?? '')
   return trimmed
+}
+
+function normalizeDislikedGameId(value: unknown, fallback: string): string {
+  if (typeof value !== 'string') return fallback
+  const trimmed = value.trim()
+  return trimmed || fallback
 }
 
 function clampInteger(value: unknown, min: number, max: number) {

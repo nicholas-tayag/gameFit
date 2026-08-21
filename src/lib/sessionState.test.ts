@@ -27,12 +27,12 @@ describe('restoreSavedState', () => {
     const state = restoreSavedState(
       {
         answers: {
-          valid: 'keep',
+          ' valid ': ' keep ',
           blank: '   ',
           numeric: 4 as never,
         },
         currentIndex: 'bad' as never,
-        dislikedGameId: '',
+        dislikedGameId: '  ',
         stage: 'mystery' as never,
         topGames: 'not-an-array' as never,
       },
@@ -44,5 +44,20 @@ describe('restoreSavedState', () => {
     expect(state.dislikedGameId).toBe('elden-ring')
     expect(state.stage).toBe('landing')
     expect(state.topGames).toEqual(defaults.defaultTopGames)
+  })
+
+  it('trims restored ids from persisted state', () => {
+    const state = restoreSavedState(
+      {
+        answers: {
+          ' q1 ': ' option-a ',
+        },
+        dislikedGameId: ' hades ',
+      },
+      defaults,
+    )
+
+    expect(state.answers).toEqual({ q1: 'option-a' })
+    expect(state.dislikedGameId).toBe('hades')
   })
 })
