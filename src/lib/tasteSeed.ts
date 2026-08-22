@@ -71,10 +71,14 @@ export const findTasteSeedGame = (entry: string): GameCatalogItem | undefined =>
     return gameCatalog.find((game) => game.id === aliasId)
   }
 
+  const isMeaningfulFragment = normalized.split(' ').some((word) => word.length >= 4)
+
   return gameCatalog.find((game) => {
     const title = normalizeTitle(game.title)
     const compactGameTitle = compactTitle(game.title)
-    return title === normalized || compactGameTitle === compact || title.includes(normalized) || normalized.includes(title)
+    return title === normalized
+      || compactGameTitle === compact
+      || (isMeaningfulFragment && (title.includes(normalized) || normalized.includes(title)))
   })
 }
 

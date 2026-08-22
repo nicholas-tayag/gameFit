@@ -7,6 +7,10 @@ describe('findTasteSeedGame', () => {
     expect(findTasteSeedGame('BG3')?.id).toBe('baldurs-gate-3')
     expect(findTasteSeedGame('totk')?.id).toBe('zelda-totk')
   })
+
+  it('does not treat short title fragments as catalog matches', () => {
+    expect(findTasteSeedGame('the')).toBeUndefined()
+  })
 })
 
 describe('buildTasteSeedInsight', () => {
