@@ -67,4 +67,11 @@ describe('restoreSavedState', () => {
     expect(state.stage).toBe('results')
   })
 
+  it('copies fallback game titles before returning restored state', () => {
+    const state = restoreSavedState(null, defaults)
+    state.topGames[0] = 'Changed title'
+
+    expect(defaults.defaultTopGames[0]).toBe('Hades')
+  })
+
 })

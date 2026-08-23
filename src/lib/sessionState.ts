@@ -55,7 +55,7 @@ function normalizeStage(value: unknown, fallback: PersistedGamefitStage): Persis
 }
 
 function normalizeTopGames(value: unknown, defaults: string[]): string[] {
-  if (!Array.isArray(value)) return defaults
+  if (!Array.isArray(value)) return [...defaults]
   const trimmed = value
     .slice(0, defaults.length)
     .map((item) => (typeof item === 'string' ? item.trim() : ''))
