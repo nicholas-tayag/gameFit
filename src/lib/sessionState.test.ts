@@ -74,4 +74,10 @@ describe('restoreSavedState', () => {
     expect(defaults.defaultTopGames[0]).toBe('Hades')
   })
 
+  it('does not treat boolean saved indices as quiz positions', () => {
+    const state = restoreSavedState({ currentIndex: true as never }, defaults)
+
+    expect(state.currentIndex).toBe(0)
+  })
+
 })

@@ -70,6 +70,7 @@ function normalizeDislikedGameId(value: unknown, fallback: string): string {
 }
 
 function clampInteger(value: unknown, min: number, max: number) {
+  if (typeof value === 'boolean') return min
   const numeric = Number(value)
   if (!Number.isInteger(numeric)) return min
   return Math.max(min, Math.min(max, numeric))
