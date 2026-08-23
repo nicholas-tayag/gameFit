@@ -60,4 +60,11 @@ describe('restoreSavedState', () => {
     expect(state.answers).toEqual({ q1: 'option-a' })
     expect(state.dislikedGameId).toBe('hades')
   })
+
+  it('restores stages saved with surrounding whitespace', () => {
+    const state = restoreSavedState({ stage: ' results ' as never }, defaults)
+
+    expect(state.stage).toBe('results')
+  })
+
 })

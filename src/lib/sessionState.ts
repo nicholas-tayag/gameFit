@@ -49,9 +49,9 @@ function normalizeAnswers(value: unknown): Record<string, string> {
 }
 
 function normalizeStage(value: unknown, fallback: PersistedGamefitStage): PersistedGamefitStage {
-  return typeof value === 'string' && allowedStages.has(value as PersistedGamefitStage)
-    ? (value as PersistedGamefitStage)
-    : fallback
+  if (typeof value !== 'string') return fallback
+  const trimmed = value.trim() as PersistedGamefitStage
+  return allowedStages.has(trimmed) ? trimmed : fallback
 }
 
 function normalizeTopGames(value: unknown, defaults: string[]): string[] {
