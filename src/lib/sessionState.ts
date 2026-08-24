@@ -64,9 +64,10 @@ function normalizeTopGames(value: unknown, defaults: string[]): string[] {
 }
 
 function normalizeDislikedGameId(value: unknown, fallback: string): string {
-  if (typeof value !== 'string') return fallback
+  const fallbackId = fallback.trim()
+  if (typeof value !== 'string') return fallbackId
   const trimmed = value.trim()
-  return trimmed || fallback
+  return trimmed || fallbackId
 }
 
 function clampInteger(value: unknown, min: number, max: number) {

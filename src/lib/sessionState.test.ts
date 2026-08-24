@@ -83,9 +83,11 @@ describe('restoreSavedState', () => {
   it('normalizes configured fallback state before restoring', () => {
     const state = restoreSavedState(undefined, {
       ...defaults,
+      defaultDislikedGameId: ' elden-ring ',
       defaultStage: ' results ' as never,
     })
 
+    expect(state.dislikedGameId).toBe('elden-ring')
     expect(state.stage).toBe('results')
   })
 
