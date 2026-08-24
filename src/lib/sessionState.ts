@@ -26,7 +26,7 @@ export function restoreSavedState(
   raw: Partial<RawPersistedGamefitState> | null | undefined,
   options: RestoreOptions,
 ): RestoredGamefitState {
-  const fallbackStage = options.defaultStage ?? 'landing'
+  const fallbackStage = normalizeStage(options.defaultStage, 'landing')
   const stage = normalizeStage(raw?.stage, fallbackStage)
   const maxIndex = Math.max(0, options.quizLength - 1)
 

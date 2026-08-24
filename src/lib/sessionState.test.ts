@@ -80,4 +80,13 @@ describe('restoreSavedState', () => {
     expect(state.currentIndex).toBe(0)
   })
 
+  it('normalizes configured fallback state before restoring', () => {
+    const state = restoreSavedState(undefined, {
+      ...defaults,
+      defaultStage: ' results ' as never,
+    })
+
+    expect(state.stage).toBe('results')
+  })
+
 })
